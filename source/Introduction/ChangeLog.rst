@@ -27,6 +27,12 @@
         * 改善内容の詳細は、\ `5.3.1のIssue一覧(improvement) <https://github.com/terasolunaorg/guideline/issues?utf8=%E2%9C%93&q=label%3A5.3.1%20label%3Aimprovement%20is%3Aclosed%20>`_\ を参照されたい。
 
     * -
+      - :doc:`../ArchitectureInDetail/WebApplicationDetail/Validation`
+      - 記載内容の追加
+
+        * \ ``@Compare`` \アノテーションの\ ``operator`` \属性に新たに追加された\ ``NOT_EQUAL`` \の説明を追加(\ `guideline#2842 <https://github.com/terasolunaorg/guideline/issues/2842>`_\ )
+
+    * -
       - :doc:`../ArchitectureInDetail/WebApplicationDetail/TilesLayout`
       - 記載内容の修正
 
