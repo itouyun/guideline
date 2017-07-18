@@ -898,8 +898,8 @@ terasoluna-gfw-validator provides following components.
       - Bean Validation constraint annotation for byte length check
       - Provide a constraint annotation to check whether the byte length in the character code of input value is less than or equal to specified maximum value, and greater than or equal to specified minimum value, using Bean Validation.
     * -
-      - Bean Validation constraint annotation for field value comparison correlation check
-      - Provide a constraint annotation to check magnitude correlation of two fields using Bean Validation.
+      - Bean Validation constraint annotation for property value comparison check
+      - Provide a constraint annotation to check comparison of two properties using Bean Validation.
 
 terasoluna-gfw-jodatime
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
