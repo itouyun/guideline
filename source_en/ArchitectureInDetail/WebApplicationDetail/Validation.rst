@@ -4534,19 +4534,22 @@ Annotation (\ ``org.terasoluna.gfw.common.validator.constraints.*``\ ) offered b
 
     * - \ ``@Compare``\
       - | Implementation class of \ ``Comparable``\  interface can be applied to any JavaBean with a property
-      - | Verify that the magnitude relation of specified property value is correct.
+      - | Verify that the comparison result of specified property value is correct.
         |
         | **[Annotation attribute]**
         | \ ``String left``\  - Specify the property name to be used as a comparison source in the object. A message is displayed in the property in case of a validation error.
         | \ ``String right``\  - Specify property name to be used as a comparison destination in the object.
-        | \ ``org.terasoluna.gfw.common.validator.constraints.Compare.Operator operator``\  - Specify Enum type \ ``Operator``\  value which shows expected magnitude relation. Values that can be specified are as below.
+        | \ ``org.terasoluna.gfw.common.validator.constraints.Compare.Operator operator``\  - Specify Enum type \ ``Operator``\  value which shows comparison method. Values that can be specified are as below.
 
         * \ ``EQUAL``\  : \ ``left = right``\ 
+        * \ ``NOT_EQUAL``\  : \ ``left != right``\ 
         * \ ``GREATER_THAN``\  : \ ``left > right``\ 
         * \ ``GREATER_THAN_OR_EQUAL``\  : \ ``left >= right``\ 
         * \ ``LESS_THAN``\  : \ ``left < right``\ 
         * \ ``LESS_THAN_OR_EQUAL``\  : \ ``left <= right``\ 
 
+        | \ ``NOT_EQUAL``\  is the value that can be used in terasoluna-gfw-validator 5.3.1.RELEASE and subsequent versions.
+        |
         | \ ``boolean requireBoth``\  - Specify whether values must be entered in the fields specified by both \ ``left``\  attribute and \ ``right``\  attribute (should not be \ ``null``\ ).
 
         * \ ``true``\  : Considered as a validation error if value is entered in only one of the fields. However, considered as "validation success" when values are not entered in both the fields.
