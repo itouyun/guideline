@@ -4552,19 +4552,22 @@ terasoluna-gfw-validatorのチェックルール
 
     * - \ ``@Compare``\
       - | \ ``Comparable``\ インタフェースの実装クラスをプロパティにもつ任意のJavaBeanに適用可能
-      - | 指定したプロパティの値の大小関係が正しいことを検証する。
+      - | 指定したプロパティの値の比較結果が正しいことを検証する。
         |
         | **[アノテーションの属性]**
         | \ ``String left``\  - オブジェクト内の比較元としたいプロパティ名を指定する。検証エラーとなった場合は、このプロパティにメッセージを表示される。
         | \ ``String right``\  - オブジェクト内の比較先としたいプロパティ名を指定する。
-        | \ ``org.terasoluna.gfw.common.validator.constraints.Compare.Operator operator``\  - 期待する大小関係を示す列挙型\ ``Operator``\ の値を指定する。指定可能な値は以下の通り。
+        | \ ``org.terasoluna.gfw.common.validator.constraints.Compare.Operator operator``\  - 比較方法を示す列挙型\ ``Operator``\ の値を指定する。指定可能な値は以下の通り。
 
         * \ ``EQUAL``\  : \ ``left = right``\ である
+        * \ ``NOT_EQUAL``\  : \ ``left != right``\ である
         * \ ``GREATER_THAN``\  : \ ``left > right``\ である
         * \ ``GREATER_THAN_OR_EQUAL``\  : \ ``left >= right``\ である
         * \ ``LESS_THAN``\  : \ ``left < right``\ である
         * \ ``LESS_THAN_OR_EQUAL``\  : \ ``left <= right``\ である
 
+        | \ ``NOT_EQUAL``\ は、terasoluna-gfw-validator 5.3.1.RELEASE以上で利用可能な値である。
+        |
         | \ ``boolean requireBoth``\  - \ ``left``\ 属性と\ ``right``\ 属性で指定したフィールドの両方が入力されている（\ ``null``\ でない）必要があるかどうかを指定する。
 
         * \ ``true``\  : どちらか一方だけ入力されている場合は検証エラーとする。ただし、両方とも未入力の場合は検証成功とする
