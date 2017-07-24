@@ -94,7 +94,7 @@ Change Log
         
         Modifications related to Spring Framework 4.3
 
-        * Precautions while using \ ``@DateTimeFormat`` \ for JSR-310 Date and Time API class deleted (\ `guideline#2505 <https://github.com/terasolunaorg/guideline/issues/2505>`_\ )
+        * Precautions while using \ ``@DateTimeFormat`` \ for JSR-310 Date and Time API class deleted (\ `guideline#2505 <https://github.com/terasolunaorg/guideline/issues/2505>`_\ )
 
     * -
       - :doc:`../ArchitectureInDetail/WebApplicationDetail/Validation`
@@ -184,7 +184,7 @@ Change Log
       - :doc:`../Security/Authentication`
       - Description details added
 
-        * Description added for value attribute of checkbox used in Remember Me authentication (\ `guideline#785 <https://github.com/terasolunaorg/guideline/issues/785>`_\ )
+        * Description added for value attribute of checkbox used in Remember Me authentication (\ `guideline#785 <https://github.com/terasolunaorg/guideline/issues/785>`_\ )
 
         * Precautions while using \ ``<mvc:view-controller>`` \  added (\ `guideline#2371 <https://github.com/terasolunaorg/guideline/issues/2371>`_\ )
         
@@ -206,7 +206,7 @@ Change Log
         
         * Precautions for changing specifications of path matching of \ ``AntPathRequestMatcher``\  added (\ `guideline#2428 <https://github.com/terasolunaorg/guideline/issues/2428>`_\ )
         
-    * -
+    * -
       - :doc:`../Security/LinkageWithBrowser`
       - Modifications associated with Spring Security 4.1.4 support
       
