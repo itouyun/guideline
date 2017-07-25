@@ -28,6 +28,12 @@
 
         * \ ``<definition>`` \タグ(Tiles定義ファイル)の\ ``name`` \属性のマッチングに関する説明、及び関連する箇所の誤解を招く表現を修正(\ `guideline#2717 <https://github.com/terasolunaorg/guideline/issues/2717>`_\ )
 
+    * -
+      - :doc:`../Security/Authentication`
+      - 記載内容の追加
+
+        * パスワードを\ ``StandardPasswordEncoder`` \によるハッシュ化によって管理する場合の注意事項を追加(\ `guideline#2092 <https://github.com/terasolunaorg/guideline/issues/2092>`_\ )
+
     * - 2017-03-17
       - \-
       - 5.2.1 RELEASE版公開
