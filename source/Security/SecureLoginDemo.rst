@@ -1994,7 +1994,7 @@ ER図
            @Override
            public List<FailedAuthentication> findLatestFailureEvents(
                            String username, int count) {
-               return failedAuthenticationRepository.findLatestEvents(username, count);
+               return failedAuthenticationRepository.findLatest(username, count);
            }
 
 
