@@ -880,6 +880,12 @@ Spring Securityは、\ ``PasswordEncoder``\ インタフェースの実装クラ
       - | ハッシュ化しない実装クラス。
         | テスト用のクラスであり、実際のアプリケーションで使用することはない。
 
+.. note::
+  パスワードをStandardPasswordEncoderによるハッシュ化によって管理する場合、すべてのパスワードがハッシュ化されている必要がある。
+  ハッシュ化されていない平文パスワードのアカウントで認証しようとした場合、例外メッセージに以下のような形でパスワードが出力されてしまうため注意が必要である。
+  
+  java.lang.IllegalArgumentException: Non-hex character in input: (DB等で管理されている「平文パスワード」)
+
 本節では、Spring Securityが利用を推奨している\ ``BCryptPasswordEncoder``\ の使い方について説明する。
 
 |

@@ -54,6 +54,11 @@
 
         * SOAP Web Serviceの実装に伴うインジェクションで使用するアノテーションを\ ``@Inject`` \から\ ``@Autowired`` \に変更(\ `guideline#2763 <https://github.com/terasolunaorg/guideline/issues/2763>`_\ )
 
+    * -
+      - :doc:`../Security/Authentication`
+      - 記載内容の追加
+
+        * パスワードを\ ``StandardPasswordEncoder`` \によるハッシュ化によって管理する場合の注意事項を追加(\ `guideline#2092 <https://github.com/terasolunaorg/guideline/issues/2092>`_\ )
 
     * - 2017-03-17
       - \-
