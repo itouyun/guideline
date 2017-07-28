@@ -250,7 +250,12 @@ StandardPasswordEncoderの設定例
          * - | (1)
            - | 環境変数:PASSWORD_ENCODER_SECRETから値を取得する。
 
+  .. note::
 
+    パスワードを\ ``StandardPasswordEncoder`` \によるハッシュ化によって管理する場合、すべてのパスワードがハッシュ化されている必要がある。
+    パスワードが平文で保存されているアカウントが存在し、そのアカウントで認証しようとした場合、例外メッセージに以下のような形でパスワードが出力されてしまうため注意が必要である。
+
+    \ ``java.lang.IllegalArgumentException: Non-hex character in input: (DB等で管理されている「平文パスワード」)`` \
 
   | Javaクラス例は\ ``BCryptPasswordEncoder``\ と同様のため、\ :ref:`BCryptPasswordEncoder`\ を参照されたい。
 
