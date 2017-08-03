@@ -21,7 +21,6 @@ This guideline helps to proceed with the software development (mainly coding) sm
 Source files of this guideline are stored into following directories.
 
 * Japanese version : `{repository root}/source/`
-* English version  : `{repository root}/source_en/`
 
 
 ## Source file format
@@ -81,26 +80,6 @@ Windows:
 > build-html.bat
 ```
 
-### Build HTML files for the English
-
-Please execute the `build-html_en.sh` or `build-html_en.bat`.
-If build is successful, HTML files generate to the `{your repository}/build_en/html/` directory.
-
-Linux or Mac:
-
-```
-$ cd {your repository directory}
-$ git checkout 1.0.x
-$ ./build-html_en.sh
-```
-
-Windows:
-
-```
-> cd {your repository directory}
-> git checkout 1.0.x
-> build-html_en.bat
-```
 
 ### Build a PDF file for the Japanese
 
@@ -113,17 +92,7 @@ $ git checkout 1.0.x
 $ ./build-pdf.sh
 ```
 
-### Build a PDF file for the English
-
-Please execute the `build-pdf_en.sh`.
-If build is successful, PDF file(`TERASOLUNAGlobalFrameworkDevelopmentGuideline.pdf`) generate to the `{your repository}/build_en/latex/` directory.
-
-```
-$ cd {your repository directory}
-$ git checkout 1.0.x
-$ ./build-pdf_en.sh
-```
 
 ## Terms of use
 
-Terms of use refer to [here](/source_en/Introduction/TermsOfUse.rst).
+Terms of use refer to [here](/source/Introduction/TermsOfUse.rst).
