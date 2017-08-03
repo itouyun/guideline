@@ -1642,7 +1642,7 @@ ER図
      import lombok.Data;
 
      @Data
-     @Compare(source = "newPasssword", destination = "confirmNewPassword", operator = Compare.Operator.EQUAL) // (1)
+     @Compare(left = "newPassword", right = "confirmNewPassword", operator = Compare.Operator.EQUAL) // (1)
      @StrongPassword(usernamePropertyName = "username", newPasswordPropertyName = "newPassword") // (2)
      @NotReusedPassword(usernamePropertyName = "username", newPasswordPropertyName = "newPassword") // (3)
      @ConfirmOldPassword(usernamePropertyName = "username", oldPasswordPropertyName = "oldPassword") // (4)
