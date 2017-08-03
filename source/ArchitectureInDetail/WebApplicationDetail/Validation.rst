@@ -4466,7 +4466,6 @@ hibernate-validator-<version>.jar内のorg/hibernate/validatorに、ValidationMe
 共通ライブラリでは、独自の検証用アノテーションを提供している。
 ここでは、共通ライブラリで提供しているアノテーションを使用した入力チェックルールの指定方法について説明する。
 
-.. _Validation_terasoluna_gfw_list:
 
 terasoluna-gfw-commonのチェックルール
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -4510,6 +4509,7 @@ terasoluna-gfw-codepointsのチェックルール
       - チェック対象の文字列が指定したコードポイント集合に全て含まれるかどうかを検証する。
       - \ :ref:`@ConsistOf <StringProcessingHowToUseCodePointsValidator>`\ 参照
 
+.. _Validation_terasoluna_gfw_list:
 
 terasoluna-gfw-validatorのチェックルール
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
