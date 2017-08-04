@@ -1432,7 +1432,7 @@ Bean Validationでグループを指定する場合、アノテーションの\ 
      * - | (1)
        - | グループを振り分けるためのパラメータの条件を、\ ``param``\ 属性に追加する。
      * - | (2)
-       - | \ ``age``\ フィールドの\ ``@Min``\ 以外のアノテーションは、\ ``Default``\ グループに属しているため、\ ``Default``\ の指定も必要である。
+       - | \ ``@Min``\ 以外のアノテーションは、\ ``Default``\ グループに属しているため、\ ``Default``\ の指定も必要である。
 
 
 
@@ -1567,7 +1567,7 @@ Bean Validationでグループを指定する場合、アノテーションの\ 
                 @Min(value = 18, groups = Default.class), // (2)
                 @Min(value = 20, groups = Japanese.class),
                 @Min(value = 21, groups = Singaporean.class) })
-        @Max(200)
+        @Max(value = 200, groups = { Default.class, Japanese.class, Singaporean.class })
         private Integer age;
 
         @NotNull(groups = { Default.class, Japanese.class, Singaporean.class })
@@ -1586,7 +1586,7 @@ Bean Validationでグループを指定する場合、アノテーションの\ 
      * - 項番
        - 説明
      * - | (1)
-       - | \ ``age``\ フィールドの\ ``@Min``\ 以外のアノテーションにも、全グループを設定する。
+       - | \ ``@Min``\ 以外のアノテーションにも、全グループを設定する。
      * - | (2)
        - | \ ``Default``\ グループに対するルールを設定する。
 
