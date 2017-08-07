@@ -1739,6 +1739,8 @@ RESTful Web Serviceで必要となるSpring MVCのコンポーネントを有効
             <mvc:argument-resolvers>
                 <bean class="org.springframework.data.web.PageableHandlerMethodArgumentResolver" />
             </mvc:argument-resolvers>
+            <!-- workaround to CVE-2016-5007. -->
+            <mvc:path-matching path-matcher="pathMatcher" />
         </mvc:annotation-driven>
         
         <!-- Register components of interceptor. -->
@@ -1765,6 +1767,11 @@ RESTful Web Serviceで必要となるSpring MVCのコンポーネントを有効
             <aop:advisor advice-ref="handlerExceptionResolverLoggingInterceptor"
                 pointcut="execution(* org.springframework.web.servlet.HandlerExceptionResolver.resolveException(..))" />
         </aop:config>
+        
+        <!-- Setting PathMatcher. -->
+        <bean id="pathMatcher" class="org.springframework.util.AntPathMatcher">
+            <property name="trimTokens" value="false" />
+        </bean>
 
     </beans>
 
