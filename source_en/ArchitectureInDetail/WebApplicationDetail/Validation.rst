@@ -4012,7 +4012,6 @@ Input check rules provided by a common library
 A common library provides an independent annotation for verification.
 Here, how to specify input check rules which use annotation provided by common library is explained.
 
-.. _Validation_terasoluna_gfw_list:
 
 terasoluna-gfw-common check rules
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -4056,6 +4055,7 @@ Annotation (\ ``org.terasoluna.gfw.common.codepoints.*``\ ) offered by \ `teraso
       - Verify whether all the character strings to be checked are included in the specified code point set.
       - Refer \ :ref:`@ConsistOf <StringProcessingHowToUseCodePointsValidator>`\ 
 
+.. _Validation_terasoluna_gfw_list:
 
 terasoluna-gfw-validator check rules
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
