@@ -23,6 +23,12 @@
         * 修正内容の詳細は、\ `5.2.2のIssue一覧(clerical error) <https://github.com/terasolunaorg/guideline/issues?utf8=%E2%9C%93&q=%20label%3A5.2.2%20is%3Aclosed%20label%3A%22clerical%20error%22%20>`_\ を参照されたい。
 
     * -
+      - :doc:`../ArchitectureInDetail/WebApplicationDetail/ExceptionHandling`
+      - 記載内容の修正
+
+        * 既存の誤記の修正(\ `guideline#2794 <https://github.com/terasolunaorg/guideline/issues/2794>`_\ )
+
+    * -
       - :doc:`../ArchitectureInDetail/WebApplicationDetail/TilesLayout`
       - 記載内容の修正
 
