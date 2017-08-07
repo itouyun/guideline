@@ -37,6 +37,12 @@
         * 共通ライブラリのチェックルールの拡張方法の実装例を修正(\ `guideline#2822 <https://github.com/terasolunaorg/guideline/issues/2822>`_\ )
 
     * -
+      - :doc:`../ArchitectureInDetail/WebApplicationDetail/ExceptionHandling`
+      - 記載内容の修正
+
+        * 共通ライブラリ(\ ``ExceptionLoggingFilter`` \)の変更に伴う修正、及び既存の誤記の修正(\ `guideline#2794 <https://github.com/terasolunaorg/guideline/issues/2794>`_\ )
+
+    * -
       - :doc:`../ArchitectureInDetail/WebApplicationDetail/TilesLayout`
       - 記載内容の修正
 
