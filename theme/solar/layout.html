@@ -21,7 +21,13 @@
 {%- block footer %}
     <div class="footer">
     {%- if show_copyright %}
-      {% trans copyright=copyright|e %}{{ copyright }}{% endtrans %}
+      {%- for copy in copyright %}
+        {%- if hasdoc('copy') %}
+          {% trans path=pathto('copy'), copy=copy|e %}&copy; <a href="{{ path }}">Copyright</a> {{ copy }}.{% endtrans %}
+        {%- else %}
+          {% trans copy=copy|e %}&copy; Copyright {{ copy }}.{% endtrans %}
+        {%- endif %}
+      {%- endfor %}
     {%- endif %}
     {%- if last_updated %}
       {% trans last_updated=last_updated|e %}Last updated on {{ last_updated }}.{% endtrans %}
