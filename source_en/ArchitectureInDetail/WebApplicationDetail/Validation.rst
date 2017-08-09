@@ -1555,7 +1555,7 @@ Rules are as follows.
                 @Min(value = 18, groups = Default.class), // (2)
                 @Min(value = 20, groups = Japanese.class),
                 @Min(value = 21, groups = Singaporean.class) })
-        @Max(200)
+        @Max(value = 200, groups = { Default.class, Japanese.class, Singaporean.class })
         private Integer age;
 
         @NotNull(groups = { Default.class, Japanese.class, Singaporean.class })
