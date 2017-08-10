@@ -12,8 +12,8 @@ Security countermeasures
    LinkageWithBrowser
    XSS
    Encryption
-   SecureLoginDemo
    OAuth
+   SecureLoginDemo
 
 .. raw:: latex
 
