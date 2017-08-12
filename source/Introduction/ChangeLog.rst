@@ -44,6 +44,12 @@
         * \ `CVE-2016-6652 <https://pivotal.io/security/cve-2016-6652>`_\ (ブラインドSQLインジェクション攻撃を受ける可能性がある脆弱性)に関する注意喚起と対策を追加(\ `guideline#2439 <https://github.com/terasolunaorg/guideline/issues/2439>`_\ )
 
     * -
+      - :doc:`../ArchitectureInDetail/ExceptionHandling`
+      - 記載内容の修正
+
+        * 既存の誤記の修正(\ `guideline#2794 <https://github.com/terasolunaorg/guideline/issues/2794>`_\ )
+
+    * -
       - :doc:`../ArchitectureInDetail/TilesLayout`
       - 記載内容の修正
 
