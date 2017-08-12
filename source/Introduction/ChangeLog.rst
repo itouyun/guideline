@@ -27,6 +27,12 @@
         * 改善内容の詳細は、\ `1.0.7のIssue一覧(improvement) <https://github.com/terasolunaorg/guideline/issues?utf8=%E2%9C%93&q=label%3A1.0.7%20label%3Aimprovement%20is%3Aclosed%20>`_\ を参照されたい。
 
     * -
+      - :doc:`../ArchitectureInDetail/ExceptionHandling`
+      - 記載内容の修正
+
+        * 既存の誤記の修正(\ `guideline#2794 <https://github.com/terasolunaorg/guideline/issues/2794>`_\ )
+
+    * -
       - :doc:`../Security/PasswordHashing`
       - 記載内容の追加
 
