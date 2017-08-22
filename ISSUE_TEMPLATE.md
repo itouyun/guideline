@@ -16,7 +16,7 @@
 - [ ] 5.3.1_en (5.3.x)
 
 ## Final Solution
-(Please write ideas or candidates of final solution for the problem)
+(To be written later by project member)
 
 ## Change log(should be updated at the same time)
 (To be selected later by project member)
