@@ -2870,6 +2870,10 @@ Check rules for correlated items
 
 An example of implementing the rule, "Contents of a field should match with its confirmation field" is given below.
 
+.. tip::
+
+  In common library, \ :ref:`@Compare <Validation_terasoluna_gfw_list>`\ is implemented as a check of correlated items which compares the contents of the two fields.
+
 Set constraint of assigning "confirm" as the prefix of confirmation field.
 
 * Annotation
