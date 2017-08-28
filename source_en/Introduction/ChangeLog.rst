@@ -32,6 +32,12 @@ Change Log
 
         * Added description for value of  \ ``NOT_EQUAL`` \  which was newly added in  \ ``operator`` \  attribute of  \ ``@Compare`` \  annotation(\ `guideline#2842 <https://github.com/terasolunaorg/guideline/issues/2842>`_\ )
 
+    * -
+      - :doc:`../Security/index`
+      - Chapter order modified
+
+        * Modified the order of chapters 9.9 and 9.10 to match the Japanese version (\ `guideline#2855 <https://github.com/terasolunaorg/guideline/issues/2855>`_\ )
+
     * - 2017-03-17
       - \-
       - 5.3.0 RELEASE version published
