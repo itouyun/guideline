@@ -2888,7 +2888,9 @@ Bean Validationは標準で用意されているチェックルール以外に�
 
 .. tip::
 
-  共通ライブラリでは、2つのフィールドの内容を比較する相関項目チェックの実装として\ :ref:`@Compare <Validation_terasoluna_gfw_list>`\を用意している。
+  共通ライブラリでは、2つのフィールドの内容を比較する相関項目チェックの実装として\ :ref:`@Compare <Validation_terasoluna_gfw_list>`\アノテーションを用意している。
+  
+  \ `@Compare`\アノテーションを利用することで、このルールをより簡単に実現することができる。 詳細は\ :ref:`Validation_terasoluna_gfw_how_to_extend`\を参照されたい。
 
 ここでは、確認用フィールドの先頭に、「confirm」を付与する規約を設ける。
 
