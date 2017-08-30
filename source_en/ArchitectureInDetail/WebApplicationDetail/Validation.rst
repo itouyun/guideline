@@ -3326,6 +3326,12 @@ Check rules for correlated items
 
 An example of implementing the rule, "Contents of a field should match with its confirmation field" is given below.
 
+.. tip::
+
+  In common library, \ :ref:`@Compare <Validation_terasoluna_gfw_list>` \ annotation is implemented as a check of correlated items which compares the contents of the two fields.
+  
+  By using \ `@Compare` \ annotation, this rule can be realized more easily. For details, refer to \ :ref:`Validation_terasoluna_gfw_how_to_extend`\.
+
 Set constraint of assigning "confirm" as the prefix of confirmation field.
 
 * Annotation
@@ -4448,7 +4454,6 @@ Input check rules provided by a common library
 A common library provides an independent annotation for verification.
 Here, how to specify input check rules which use annotation provided by common library is explained.
 
-.. _Validation_terasoluna_gfw_list:
 
 terasoluna-gfw-common check rules
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -4492,6 +4497,7 @@ Annotation (\ ``org.terasoluna.gfw.common.codepoints.*``\ ) offered by \ `teraso
       - Verify whether all the character strings to be checked are included in the specified code point set.
       - Refer \ :ref:`@ConsistOf <StringProcessingHowToUseCodePointsValidator>`\ 
 
+.. _Validation_terasoluna_gfw_list:
 
 terasoluna-gfw-validator check rules
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

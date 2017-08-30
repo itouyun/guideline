@@ -3343,6 +3343,12 @@ Controller側では\ ``Role``\の\ ``List``\ 、JSP側では\ ``String``\ の\ `
 
 以下では、「あるフィールドとその確認用フィールドの内容が一致すること」というルールを実現する例を挙げる。
 
+.. tip::
+
+  共通ライブラリでは、2つのフィールドの内容を比較する相関項目チェックの実装として\ :ref:`@Compare <Validation_terasoluna_gfw_list>`\アノテーションを用意している。
+  
+  \ `@Compare`\アノテーションを利用することで、このルールをより簡単に実現することができる。 詳細は\ :ref:`Validation_terasoluna_gfw_how_to_extend`\を参照されたい。
+
 ここでは、確認用フィールドの先頭に、「confirm」を付与する規約を設ける。
 
 * アノテーション
@@ -4466,7 +4472,6 @@ hibernate-validator-<version>.jar内のorg/hibernate/validatorに、ValidationMe
 共通ライブラリでは、独自の検証用アノテーションを提供している。
 ここでは、共通ライブラリで提供しているアノテーションを使用した入力チェックルールの指定方法について説明する。
 
-.. _Validation_terasoluna_gfw_list:
 
 terasoluna-gfw-commonのチェックルール
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -4510,6 +4515,7 @@ terasoluna-gfw-codepointsのチェックルール
       - チェック対象の文字列が指定したコードポイント集合に全て含まれるかどうかを検証する。
       - \ :ref:`@ConsistOf <StringProcessingHowToUseCodePointsValidator>`\ 参照
 
+.. _Validation_terasoluna_gfw_list:
 
 terasoluna-gfw-validatorのチェックルール
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
