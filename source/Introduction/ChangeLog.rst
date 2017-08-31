@@ -27,6 +27,12 @@
         * 改善内容の詳細は、\ `5.4.0のIssue一覧(improvement) <https://github.com/terasolunaorg/guideline/issues?utf8=%E2%9C%93&q=label%3A5.4.0%20label%3Aimprovement%20is%3Aclosed%20>`_\ を参照されたい。
 
     * -
+      - :doc:`../ImplementationAtEachLayer/DomainLayer`
+      - MyBatis3.4対応に伴う修正
+
+        * \ ``@Transactional`` \アノテーションの\ ``timeout`` \属性に関する記載を変更(\ `guideline#1776 <https://github.com/terasolunaorg/guideline/issues/1776>`_\ )
+
+    * -
       - :doc:`../ArchitectureInDetail/WebApplicationDetail/Validation`
       - 記載内容の追加
 

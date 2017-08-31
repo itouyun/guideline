@@ -1875,6 +1875,10 @@ Spring Frameworkから提供されている「宣言型トランザクション�
     * SQL Server : READ_COMMITTED
     * MySQL : REPEATABLE_READ
 
+ .. note:: **@Transactionalアノテーションのtimeout属性について**
+
+    \ ``@Transactional``\アノテーションのtimeout属性に指定した値はDBアクセス時のみにチェックされる。そのため、DBアクセス以外の処理で時間がかかった場合、タイムアウトにならないケースがある。
+
 .. _DomainLayerTransactionManagementWarningDisableCase:
 
  .. note:: **「読み取り専用のトランザクション」が有効にならないケースについて**
