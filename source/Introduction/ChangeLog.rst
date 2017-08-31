@@ -74,7 +74,7 @@
 
         記載内容の追加
 
-        * Spring Security OAuthで発生する例外の一覧とハンドリング方法の実装例を追加(\ `guideline#2819 <https://github.com/terasolunaorg/guideline/issues/2819>`_\ )
+        * Spring Security OAuthで発生する例外の一覧とハンドリング方法の追加(\ `guideline#2819 <https://github.com/terasolunaorg/guideline/issues/2819>`_\ )
 
     * - 2017-03-17
       - \-
