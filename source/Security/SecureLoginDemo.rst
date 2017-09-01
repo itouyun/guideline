@@ -1642,7 +1642,7 @@ ER図
      import lombok.Data;
 
      @Data
-     @Compare(source = "newPasssword", destination = "confirmNewPassword", operator = Compare.Operator.EQUAL) // (1)
+     @Compare(left = "newPassword", right = "confirmNewPassword", operator = Compare.Operator.EQUAL) // (1)
      @StrongPassword(usernamePropertyName = "username", newPasswordPropertyName = "newPassword") // (2)
      @NotReusedPassword(usernamePropertyName = "username", newPasswordPropertyName = "newPassword") // (3)
      @ConfirmOldPassword(usernamePropertyName = "username", oldPasswordPropertyName = "oldPassword") // (4)
@@ -4050,7 +4050,7 @@ URLに含まれるトークンと秘密情報の組が正しい場合にのみ�
        // omitted
 
        @Data
-       @Compare(source = "newPasssword", destination = "confirmNewPassword", operator = Compare.Operator.EQUAL)
+       @Compare(left = "newPassword", right = "confirmNewPassword", operator = Compare.Operator.EQUAL)
        @StrongPassword(usernamePropertyName = "username", newPasswordPropertyName = "newPassword") // (1)
        @NotReusedPassword(usernamePropertyName = "username", newPasswordPropertyName = "newPassword") // (2)
        public class PasswordResetForm implements Serializable{
