@@ -66,6 +66,12 @@
 
         * パスワードを\ ``StandardPasswordEncoder`` \によるハッシュ化によって管理する場合の注意事項を追加(\ `guideline#2092 <https://github.com/terasolunaorg/guideline/issues/2092>`_\ )
 
+    * -
+      - :doc:`../Security/OAuth`
+      - 構成見直し
+
+        * How to useをグラントタイプ毎に説明する章構成に変更(\ `guideline#2818 <https://github.com/terasolunaorg/guideline/issues/2818>`_\ )
+
     * - 2017-03-17
       - \-
       - 5.3.0 RELEASE版公開
