@@ -67,7 +67,7 @@ OAuth 2.0はRFCとして仕様化されており、関連する複数の技術�
 
 |
 
-従来のクライアントサーバ型の認証モデルでは、サードパーティー製アプリケーションはサーバ上の
+従来のクライアントサーバ型の認証モデルでは、サードパーティー製アプリケーションはHTTPサービスの
 保護されたリソースにアクセスするために、ユーザーの認証情報（ユーザー名とパスワードなど）を利用して認証を行う。
 
 つまり、ユーザーは、サードパーティー製アプリケーションにリソースへのアクセス権を与えるために
@@ -79,7 +79,7 @@ OAuth 2.0はRFCとして仕様化されており、関連する複数の技術�
     :width: 100%
 
 
-これに対し、OAuth 2.0では認証はユーザが直接行い、サードパーティー製アプリケーションには
+これに対し、OAuth 2.0ではHTTPサービスとの認証はユーザが直接行い、サードパーティー製アプリケーションには
 「アクセストークン」と呼ばれる認証済みリクエストを行うための情報を払い出すことで、
 サードパーティーに認証情報を共有することなくリソースへアクセスすることが可能となる。
 
@@ -119,24 +119,41 @@ OAuth 2.0ではロールとして以下の4つを定義している。
     * - | リソースオーナ
       - | 保護されたリソースへのアクセスを許可するロール。人（エンドユーザ）など。
     * - | リソースサーバ
-      - | 保護されたリソースを提供するロール。Webサーバ。
+      - | 保護されたリソースを提供するサーバ。
     * - | 認可サーバ
-      - | リソースオーナの認証と、アクセストークン（クライアントがリソースサーバにアクセスするときに必要な情報）の発行を行うロール。Webサーバ。
+      - | リソースオーナの認証と、アクセストークン（クライアントがリソースサーバにアクセスするときに必要な情報）の発行を行うサーバ。
     * - | クライアント
-      - | リソースオーナの認可を得て、リソースオーナの代理として保護されたリソースに対してリクエストを行うロール。Webアプリケーションなど。クライアントの情報は事前に認可サーバに登録され、認可サーバ内で一意な情報であるクライアントIDにより管理される。
+      - | リソースオーナの認可を得て、リソースオーナの代理として保護されたリソースに対してリクエストを行うロール。Webアプリケーションなど。クライアント情報は事前に認可サーバに登録され、認可サーバ内で一意な情報であるクライアントIDにより管理される。
+
         | OAuth 2.0ではクライアントクレデンシャル（クライアントの認証情報）の機密性を維持できる能力に基づき、クライアントタイプとして以下の2つを定義している。
+
         | (1) コンフィデンシャル
         |     クライアントクレデンシャルの機密性を維持することができるクライアント。
         | (2) パブリック
         |     リソースオーナのデバイス上で実行されるクライアントのように、クライアントクレデンシャルの機密性を維持することができず、かつ他の手段を用いたセキュアなクライアント認証が行えないクライアント。
         |
-        | また、OAuth 2.0ではクライアントとして以下のような例を考慮して設計されている
-        | (1) Webアプリケーション（web application）
-        |     Webサーバー上で実行されるクライアント（コンフィデンシャル）。
-        | (2) ユーザエージェントベースアプリケーション（user-agent-based application）
-        |     クライアントコードがWebサーバーからダウンロードされリソースオーナのユーザエージェント内で実行されるクライアント（パブリック）。JavaScriptアプリケーションなど。
-        | (3) ネイティブアプリケーション（native application）
-        |     リソースオーナのデバイス上にインストールされ実行されるクライアント（パブリック）。
+        | また、OAuth 2.0ではクライアントとして以下のような例を考慮して設計されている。
+        | (1) コンフィデンシャル
+
+        * | Webアプリケーション（Web application）
+          | アプリケーションサーバ上で実行されるクライアント。
+
+        | (2) パブリック
+
+        * | ユーザエージェントベースアプリケーション（user-agent-based application）
+          | クライアントコードがアプリケーションサーバからダウンロードされリソースオーナのユーザエージェント（ブラウザなど）内で実行されるクライアント。
+          | JavaScriptアプリケーションなど。
+        * | ネイティブアプリケーション（native application）
+          | リソースオーナのデバイス上にインストールされ実行されるクライアント。
+
+|
+
+.. note::
+
+    ユーザエージェントは、リソースオーナが使用するWebブラウザ等を指す。
+    本ガイドラインでは、エンドユーザの操作が発生する箇所を明確にするため、リソースオーナ（エンドユーザ）とユーザエージェントを別のものとして解説する。
+    ガイドラインでリソースオーナと明示している場合に、エンドユーザの操作が発生する。
+    
 
 |
 
@@ -185,7 +202,7 @@ OAuth 2.0では、以下のような流れでリソースへのアクセスを�
       - | クライアントはリソースサーバの保護されたリソースへリクエストを行い、発行されたアクセス
         | トークンにより認証する。
     * - | (6)
-      - | リソースサーバはアクセストークンの正当性を確認し、正当な場合、リクエストを受け入れる。
+      - | リソースサーバはアクセストークンの正当性を確認し、正当な場合、リクエストを受け入れリソースを応答する。
 
 .. note::
 
@@ -201,11 +218,12 @@ OAuth 2.0では、以下のような流れでリソースへのアクセスを�
 認可グラントは、リソースオーナからの認可を表し、クライアントがアクセストークンを取得する際に用いられる。
 OAuth 2.0では、グラントタイプとして以下の4つを定義しているが、クレデンシャル項目を追加するなどの独自拡張を行うこともできる。
 
-クライアントは4つのグラントタイプのいずれかにより、認可サーバへアクセストークンを要求し、取得したアクセストークンでリソースサーバにアクセスする。
+クライアントはいずれかのグラントタイプを利用して認可サーバへアクセストークンを要求し、取得したアクセストークンでリソースサーバにアクセスする。
 認可サーバはサポートするグラントタイプを必ず1つ以上定義しており、その中から使用するグラントタイプをクライアントからの認可リクエストによって決定する。
 
 .. tabularcolumns:: |p{0.25\linewidth}|p{0.75\linewidth}|
 .. list-table:: **OAuth 2.0における認可グラント**
+    :name: OAuthAuthorizationGrant　
     :header-rows: 1
     :widths: 25 75
 
@@ -231,6 +249,12 @@ OAuth 2.0では、グラントタイプとして以下の4つを定義してい�
 
 |
 
+.. warning::
+
+    \ :ref:`OAuth 2.0における認可グラント <OAuthAuthorizationGrant>`\で解説した通り、認可コードグラント以外のグラントタイプには、セキュリティ上のリスクや、使用上の制約がある。そのため、認可コードグラントの利用を優先して検討されたい。
+
+|
+
 認可コードグラントのフローを以下に示す。
 
 .. figure:: ./images/OAuth_AuthorizationCodeGrant.png
@@ -245,28 +269,26 @@ OAuth 2.0では、グラントタイプとして以下の4つを定義してい�
     * - 項番
       - 説明
     * - | (1)
-      - | リソースオーナは、ユーザエージェントを介してクライアントが提供するリソースサーバの保護されたリソースが必要なページにアクセスする。
-        | クライアントはリソースオーナから認可の取得を行うために、リソースオーナのユーザエージェントを認可サーバの認可エンドポイントにアクセスさせる。
-        | このとき、クライアントは自身を識別するためのクライアントIDと、オプションとしてリソースに要求するスコープ、認可サーバが認可処理後にユーザエージェントを戻すリダイレクトURL、stateをリクエストパラメータに含める。
+      - | リソースオーナは、ユーザエージェント(Webブラウザなど)を介してクライアントが提供するリソースサーバの保護されたリソースにアクセスする。
+        | クライアントはリソースオーナから認可の取得を行うために、リソースオーナが操作するユーザエージェントを認可サーバの認可エンドポイントにリダイレクトさせる。
+        | このとき、クライアントは自身を識別するためのクライアントIDと、オプションとしてリソースに要求するスコープ、認可サーバが認可処理後にユーザエージェントを戻すリダイレクトURI、stateをリクエストパラメータに含める。
         | stateはユーザエージェントに紐付くランダムな値であり、一連のフローが同じユーザエージェントで実行されたことを保証するために利用される(CSRF対策)。
     * - | (2)
       - | ユーザエージェントは、クライアントに指示された認可サーバの認可エンドポイントにアクセスする。
-        | 認可サーバはユーザエージェント経由でリソースオーナを認証し、リクエストパラメータのクライアントID、スコープ、リダイレクトURLを元に、自身に登録済みのクライアント情報と比較しパラメータの正当性確認を行う。
+        | 認可サーバはユーザエージェント経由でリソースオーナを認証し、リクエストパラメータのクライアントID、スコープ、リダイレクトURIを元に、自身に登録済みのクライアント情報と比較しパラメータの正当性確認を行う。
         | 確認完了後、アクセス要求の許可/拒否をリソースオーナにたずねる。
     * - | (3)
       - | リソースオーナはアクセス要求の許可/拒否を認可サーバに送信する。
-        | リソースオーナがアクセスを許可した場合、認可サーバの認可エンドポイントは認可コードを発行し、リクエストパラメータのリダイレクトURLを用いてユーザエージェントをクライアントにリダイレクトさせる指示を出す。
-        | その際、リダイレクトURLのリクエストパラメータとして、認可コードをリダイレクトURLに付与する。
+        | リソースオーナがアクセスを許可した場合、認可サーバは、リクエストパラメータに含まれるリダイレクトURIを用いて、
+          ユーザエージェントをクライアントにリダイレクトさせる指示を出す。
+        | その際、認可コードをリダイレクトURIのリクエストパラメータとして付与する。
     * - | (4)
-      - | ユーザエージェントは認可コードが付与されたリダイレクトURLにアクセスする。
+      - | ユーザエージェントは認可コードが付与されたリダイレクトURIにアクセスする。
         | クライアントの処理が完了するとリソースオーナにレスポンスを返却する。
     * - | (5)
       - | クライアントはアクセストークンを要求するために、認可コードを認可サーバのトークンエンドポイントに送信する。
         | 認可サーバのトークンエンドポイントはクライアントの認証と認可コードの正当性の検証を行い、正当である場合アクセストークンと任意でリフレッシュトークンを発行する。
         | リフレッシュトークンはアクセストークンが無効化された、または期限切れの際に新しいアクセストークンを発行するために使用される。
-    * - | (6)
-      - | クライアントは取得したアクセストークンでリソースサーバにアクセスする。
-        | リソースサーバはアクセストークンの正当性を確認し、正当な場合、リクエストを処理してレスポンスをクライアントに返却する。
 
 |
 
@@ -286,25 +308,24 @@ OAuth 2.0では、グラントタイプとして以下の4つを定義してい�
     * - | (1)
       - | リソースオーナは、ユーザエージェントを介してクライアントが提供するリソースサーバの保護されたリソースが必要なページにアクセスする。
         | クライアントはリソースオーナから認可の取得とアクセストークンの発行を行うために、リソースオーナのユーザエージェントを認可サーバの認可エンドポイントにアクセスさせる。
-        | このとき、クライアントは自身を識別するためのクライアントIDと、オプションとしてリソースに要求するスコープ、認可サーバが認可処理後にユーザエージェントを戻すリダイレクトURL、stateをリクエストパラメータに含める。
+        | このとき、クライアントは自身を識別するためのクライアントIDと、オプションとしてリソースに要求するスコープ、認可サーバが認可処理後にユーザエージェントを戻すリダイレクトURI、stateをリクエストパラメータに含める。
         | stateはユーザエージェントに紐付くランダムな値であり、一連のフローが同じユーザエージェントで実行されたことを保証するために利用される(CSRF対策)。
     * - | (2)
       - | ユーザエージェントは、クライアントに指示された認可サーバの認可エンドポイントにアクセスする。
-        | 認可サーバはユーザエージェント経由でリソースオーナを認証し、リクエストパラメータのクライアントID、スコープ、リダイレクトURLを元に、自身に登録済みのクライアント情報と比較しパラメータの正当性確認を行う。
+        | 認可サーバはユーザエージェント経由でリソースオーナを認証し、リクエストパラメータのクライアントID、スコープ、リダイレクトURIを元に、自身に登録済みのクライアント情報と比較しパラメータの正当性確認を行う。
         | 確認完了後、アクセス要求の許可/拒否をリソースオーナにたずねる。
     * - | (3)
       - | リソースオーナはアクセス要求の許可/拒否を認可サーバに送信する。
-        | リソースオーナがアクセスを許可した場合、認可サーバの認可エンドポイントはリクエストパラメータのリダイレクトURLを用いてユーザエージェントをクライアントリソースにリダイレクトさせる指示を出す。その際、アクセストークンをリダイレクトURLのURLフラグメントに付与する。
+        | リソースオーナがアクセスを許可した場合、認可サーバの認可エンドポイントはリクエストパラメータのリダイレクトURIを用いて
+          ユーザエージェントをクライアントリソースにリダイレクトさせる指示を出し、アクセストークンをリダイレクトURIのURLフラグメントに付与する。
+        | ここで「クライアントリソース」とは、クライアントアプリケーションとは別にWebサーバ等にホストしておいた静的リソースを指す。
     * - | (4)
-      - | ユーザエージェントはリダイレクトの指示に従い、クライアントリソースにリクエストを送信する。このとき、URLフラグメントの情報をローカルで保持し、リダイレクトの際にはURLフラグメントを送信しない。
+      - | ユーザエージェントはリダイレクトの指示に従い、クライアントリソースにリクエストを送信する。
+          このとき、URLフラグメントの情報をローカルで保持し、リダイレクトの際にはURLフラグメントを送信しない。
         | クライアントリソースにアクセスすると、Webページ（通常は埋め込みスクリプトを含むHTMLドキュメント）が返却される。
         | ユーザエージェントはWebページに含まれるスクリプトを実行し、ローカルで保持していたURLフラグメントからアクセストークンを抽出する。
     * - | (5)
       - | ユーザエージェントはアクセストークンをクライアントに渡す。
-        | クライアントの処理が完了するとリソースオーナにレスポンスを返却する。
-    * - | (6)
-      - | クライアントは取得したアクセストークンでリソースサーバにアクセスする。
-        | リソースサーバはアクセストークンの正当性を確認し、正当な場合、リクエストを処理してレスポンスをクライアントに返却する。
 
 |
 
@@ -355,7 +376,7 @@ OAuth 2.0では、グラントタイプとして以下の4つを定義してい�
 アクセストークンのライフサイクル
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 アクセストークンはクライアントが提示する認可グラントの正当性を認可サーバが確認することで発行される。
-発行されたアクセストークンは、認可サーバのポリシーまたはリソースオーナの指示に基づいたスコープが与えられ、保護されたリソースに対するアクセス権を得る。
+発行されたアクセストークンは、認可サーバのポリシーまたはリソースオーナの指示に基づいたスコープが与えられ、保護されたリソースに対するアクセス権を保持する。
 アクセストークンは発行時に有効期限が設定され、有効期限切れとなると保護されたリソースに対するアクセス権を失効される。
 
 アクセストークンの発行から失効までの流れは以下のようになる。
@@ -387,11 +408,11 @@ OAuth 2.0では、グラントタイプとして以下の4つを定義してい�
 | アクセストークンが有効期限切れとなると保護されたリソースに対するアクセス権を失効されるが、アクセストークンが有効期限切れとなる前にアクセストークンを無効化し保護されたリソースに対するアクセス権を失効させることも可能である。
 | アクセストークンが有効期限切れとなる前に無効化する場合、クライアントより認可サーバにトークンの取り消し依頼を行う。無効化されたアクセストークンは保護されたリソースに対するアクセス権を失効される。
 
-| 
+|
 
 | アクセストークンが有効期限切れとなった場合、クライアントがアクセストークンを再取得するためには認可サーバへ認可グラントの再提示を行い、認可サーバによる正当性の再確認が必要になる。
   そのため、アクセストークンの有効期限を短く設定した場合はユーザビリティが下がってしまう。一方で、アクセストークンの有効期限を長く設定した場合はアクセストークンの漏洩、漏洩時に悪用されるリスクが高まってしまう。
-  
+
 | ユーザビリティを下げずに漏洩、漏洩時のリスクを下げるためにはリフレッシュトークンが用いられる。
   リフレッシュトークンはアクセストークンが無効化されたあるいは期限切れの際、認可グラントの再提示を行うことなく新しいアクセストークンを取得するために利用される。
   リフレッシュトークンも発行時に有効期限が設定され、リフレッシュトークンが有効期限切れとなった場合はアクセストークンの再発行ができなくなる。
@@ -424,9 +445,37 @@ OAuth 2.0では、グラントタイプとして以下の4つを定義してい�
     * - | (6)
       - | リソースサーバはクライアントが提示したアクセストークンの正当性を検証し、アクセストークンの有効期限が切れている場合はエラーを返却する。
     * - | (7)
-      - | リソースサーバよりアクセストークンの有効期限切れエラーが返却された場合、クライアントはリフレッシュトークンを提示することで新しいアクセストークンを要求する。
+      - | リソースサーバよりアクセストークンの有効期限切れエラーが返却された場合、
+          クライアントはリフレッシュトークン（有効期限切れ）を提示することで新しいアクセストークンを要求する。
     * - | (8)
       - | 認可サーバはクライアントが提示しリフレッシュトークンの正当性を検証し、正当であればアクセストークンとオプションでリフレッシュトークンを発行する。
+
+|
+
+リフレッシュトークンの有効期限が期限切れとなった場合は認可サーバへ認可グラントの再提示を行う。
+
+.. figure:: ./images/OAuth_LifeCycleOfRefreshToken.png
+    :width: 100%
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table:: **リフレッシュトークンの発行から再発行までのフロー**
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | クライアントが有効期限切れのアクセストークンを提示し、リソースサーバよりアクセストークンの有効期限切れエラーが返却された場合、
+        | クライアントはリフレッシュトークン（有効期限切れ）を提示することで新しいアクセストークンを要求する。
+    * - | (2)
+      - | 認可サーバはクライアントが提示したリフレッシュトークンの正当性を検証し、リフレッシュトークンの有効期限が切れている場合はエラーを返却する。
+    * - | (3)
+      - | 認可サーバよりリフレッシュトークンの有効期限切れエラーが返却された場合、クライアントは認可グラントを再提示し、アクセストークンを要求する。
+    * - | (4)
+      - | 認可サーバはクライアントが提示した認可グラントを確認し、アクセストークンとリフレッシュトークンを発行する。
+
+|
+
 
 .. _SpringSecurityOAuthArchitecture:
 
@@ -436,13 +485,13 @@ Spring Security OAuthは、OAuth 2.0で定義されているロールのうち�
 Spring Security OAuthは、Spring Framework(Spring MVC)やSpring Securityが提供する機能と連携して動作する仕組みになっており、Spring Security OAuthが提供するデフォルト実装を適切にコンフィギュレーション（Bean定義）するだけで、認可サーバ、リソースサーバ、クライアントを構築することができる。
 また、Spring FrameworkやSpring Securityと同様に数多くの拡張ポイントが用意されており、Spring Security OAuthが提供するデフォルト実装で実現できない要件を組み込むことができるようになっている。
 
-なお、各ロール間のリクエストに対する認証・認可にはSpring Securityが提供する機能を利用するため、そちらの詳細は\ :doc:`../../Security/Authentication`\ 及び \ :doc:`../../Security/Authorization`\ を参照されたい。 
+なお、各ロール間のリクエストに対する認証・認可にはSpring Securityが提供する機能を利用するため、そちらの詳細は\ :doc:`../../Security/Authentication`\ 及び \ :doc:`../../Security/Authorization`\ を参照されたい。
 
 .. note::
 
     一般的に、OAuth 2.0では全てのアプリケーションを1つのプロバイダが提供するのではなく、プロバイダが認可サーバ、リソースサーバを提供し、それらと連携するクライアントのみを実装するようなケースも多くある。そういった場合に連携するアプリケーションがSpring Security OAuthを使用して実装されているとは限らない。
     実装方法の解説では、Spring Security OAuth以外のアーキテクチャで実装されたアプリケーションと連携する方法についても、適宜Note等で補足していく。
-    
+
     連携するアプリケーションの仕様に応じて、適宜本ガイドラインで紹介していている実装方法をカスタマイズして利用されたい。
 
 |
@@ -465,18 +514,17 @@ Spring Security OAuthを使用して認可サーバ、リソースサーバ、�
         | クライアントはサービスより\ ``OAuth2RestTemplate``\ の呼び出しを行う。
         | 認可エンドポイントにアクセスする認可グラントの場合、ユーザエージェントへ認可サーバの認可エンドポイントへリダイレクトさせるよう指示する。
     * - | (2)
-      - | ユーザエージェントは認可サーバの認可エンドポイントである\ ``AuthorizationEndpoint``\ へアクセスする。
-        | \ ``AuthorizationEndpoint``\ はリソースオーナへ認可を問い合わせる画面を表示させる。
-        | リソースオーナはクライアントにスコープに対して認可を行い、\ ``AuthorizationEndpoint``\ へアクセスする。
-        | \ ``AuthorizationEndpoint``\ は、認可グラントが認可コードグラントである場合は認可コードを、インプリシットグラントである場合はアクセストークンを発行する。
+      - | ユーザエージェントは認可サーバの認可エンドポイント(\ ``AuthorizationEndpoint``\)へアクセスする。
+        | 認可エンドポイントはリソースオーナへ認可を問い合わせる画面を表示した後に、リソースオーナからの
+        | 認可リクエストを受け取り認可コードまたはアクセストークンを発行する。
         | 発行した認可コードまたはアクセストークンは、リダイレクトを使用してユーザエージェント経由でクライアントに渡される。
     * - | (3)
-      - | クライアントは\ ``OAuth2RestTemplate``\ より認可サーバのトークンエンドポイントである\ ``TokenEndpoint``\ へアクセスする。
-        | \ ``TokenEndpoint``\は\ ``AuthorizationServerTokenService``\ を呼び出しアクセストークンを発行する。発行したアクセストークンはクライアントへの応答として渡される。
-        | 認可グラントが認可コードグラントである場合は認可コードを認可サーバに提示する。アクセストークン発行前に\ ``TokenEndpoint``\で認可コードの正当性を検証される。
+      - | クライアントは\ ``OAuth2RestTemplate``\ を使用して認可サーバのトークンエンドポイント(\ ``TokenEndpoint``\ )へアクセスする。
+        | トークンエンドポイントは\ ``AuthorizationServerTokenServices``\ を呼び出し、クライアントが提示した認可グラントの検証及びアクセストークンの発行を行う。
+        | 発行したアクセストークンはクライアントへの応答として渡される。
     * - | (4)
-      - | クライアントは(2)または(3)で取得したアクセストークンを指定して \ ``OAuth2RestTemplate``\ よりリソースサーバにアクセスする。
-        | リソースサーバは\ ``OAuth2AuthenticationManager``\ を呼び出し、\ ``ResourceServerTokenServices``\ を介してアクセストークンに紐づく認証情報を取得する。また、認証情報の取得時にアクセストークンを検証する。
+      - | クライアントは \ ``OAuth2RestTemplate``\ を使用し、認可サーバから取得したアクセストークンをリクエストヘッダに設定してリソースサーバにアクセスする。
+        | リソースサーバは\ ``OAuth2AuthenticationManager``\ を呼び出し、\ ``ResourceServerTokenServices``\ を介してアクセストークンとアクセストークンに紐づく認証情報の検証を行う。
         | アクセストークンの検証に成功した場合、クライアントからのリクエストに応じたリソースを返却する。
 
 
@@ -484,16 +532,16 @@ Spring Security OAuthを使用して認可サーバ、リソースサーバ、�
 
     前述のとおり、OAuth 2.0では各エンドポイントにおいてHTTPS通信の使用を前提としているが、HTTPS通信を使用するのがSSLアクセラレータやWebサーバまでの場合や、
     ロードバランサを使用して複数のAPサーバに分散させる場合がある。
-    リソースオーナによって認可された後にクライアントに認可コードまたは、アクセストークンを連携するためのリダイレクトURLを組み立てる際に、
-    SSLアクセラレータやWebサーバ、ロードバランサを指し示すリダイレクトURLを組み立てる必要がある。
-    
+    リソースオーナによって認可された後にクライアントに認可コードまたは、アクセストークンを連携するためのリダイレクトURIを組み立てる際に、
+    SSLアクセラレータやWebサーバ、ロードバランサを指し示すリダイレクトURIを組み立てる必要がある。
+
     Spring(Spring Security OAuth)では以下のいずれかのヘッダを使用してリダイレクト用のURLを組み立てる仕組みが提供されている。
-    
+
     * Forwardedヘッダ
     * X-Forwarded-Hostヘッダ、X-Forwarded-Portヘッダ、X-Forwarded-Protoヘッダ
 
-    SSLアクセラレータやWebサーバ、ロードバランサ側で上記ヘッダを付与するように設定し、Spring(Spring Security OAuth)が正しいリダイレクトURLを生成できるようにする必要がある。
-    これを行わない場合、認可コードグラントやインプリシットグラントにおいて行うリクエストパラメータ（リダイレクトURL）の検証に失敗する可能性がある。
+    SSLアクセラレータやWebサーバ、ロードバランサ側で上記ヘッダを付与するように設定し、Spring(Spring Security OAuth)が正しいリダイレクトURIを生成できるようにする必要がある。
+    これを行わない場合、認可コードグラントやインプリシットグラントにおいて行うリクエストパラメータ（リダイレクトURI）の検証に失敗する可能性がある。
 
 .. tip::
 
@@ -507,26 +555,39 @@ Spring Security OAuthを使用して認可サーバ、リソースサーバ、�
 
 認可サーバ
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-認可サーバは、リソースオーナの認証と、認証後のリソースオーナからの認可の取得、およびアクセストークンの発行を行う。
+認可サーバでは、リソースオーナの認証、リソースオーナからの認可の取得、およびアクセストークンの発行を行う機能を提供する。
+一部のグラントタイプでは、アクセストークンを発行するためにリソースオーナに認可を問い合わせる必要があるため、
+リソースオーナの認証と、リソースオーナからの認可の取得を行う機能についても提供している。
 
-OAuth 2.0ではアクセス範囲を指定する表現としてスコープという概念をサポートしている。
-クライアントは認可リクエスト送信時にスコープを指定し、リソースオーナが指定されたスコープを認可するか、認可サーバに事前に登録されたスコープと一致する場合に、認可サーバでクライアントに対してそのスコープを認可する。
-クライアントに対してのスコープの認可と :ref:`SpringSecurityAuthorization`\ の節で説明しているSpring Securiyのロールによる認可は併用可能である。
+認可サーバはクライアント情報（どのクライアントに、どのリソースに対するどのスコープの認可を与えるかの情報）
+に基づいて、リソースにどのスコープでのアクセスを認可するかや、アクセストークンを発行してよいかの検証を行う。
 
-Spring Security OAuthでは、\ ``AuthorizationEndpoint``\ においてリソースオーナからの認可の取得機能を提供し、
-\ ``AuthorizationEndpoint``\ または\ ``TokenEndpoint``\ においてクライアントに対してのアクセストークンの発行機能を提供している。
-\ ``AuthorizationEndpoint``\と\ ``TokenEndpoint``\はアクセストークンの発行を\ ``AuthorizationServerTokenService``\ の
-デフォルト実装である\ ``DefaultTokenServices``\ によって行っている。
-アクセストークンの発行の際には、\ ``ClientDetailsService``\を介して認可サーバに登録済みのクライアント情報を取得し、アクセストークン発行の可否の検証に使用している。
+なお、クライアント情報は事前に認可サーバに登録しておく必要があるが、
+OAuth 2.0の仕様では認可サーバを利用するクライアント情報の登録手順について定められておらず、
+Spring Security OAuthにおいてもクライアント情報の登録手続きの機能は提供されていない。
+そのため、アプリケーションでクライアント情報を登録するためのインターフェイスを提供したい場合には、独自に実装する必要がある。
 
-なお、OAuth 2.0の仕様では認可サーバを利用するクライアントの登録手順については定められておらず、Spring Security OAuthにおいても
-クライアント登録手続きはサポートされていない。
-そのため、アプリケーションでクライアント登録のインターフェイスを提供したい場合には、独自に実装する必要がある。
+クライアントの認証
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+後述する各エンドポイントでは、認可サーバが管理するクライアント情報に基づき、リクエストに含まれるクライアントの認証を行う機能を提供している。
 
-リソースオーナの認証にはSpring Securityの認証機能を利用する。
+
+リソースオーナの認証
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+後述するリソースオーナからの認可の取得を行う場合、認可サーバはリソースオーナの認証も行う必要がある。この機能はSpring Securityが提供している認証機能を使用して実現する。
+
 詳細については :ref:`SpringSecurityAuthentication`\ を参照のこと。
 
-以下に認可サーバの構成を示す。
+
+リソースオーナからの認可の取得
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+Spring Security OAuthは、認可エンドポイント（\ ``AuthorizationEndpoint``\）をSpring MVCの機能を利用して提供している。
+
+クライアントは認可リクエスト送信時に利用したいスコープを指定し、リソースオーナが指定されたスコープを認可するか、
+認可サーバに事前に登録されている、クライアントに割り当てられたスコープと一致する場合に、認可サーバでクライアントに対してそのスコープを認可する。
+クライアントに対して認可を行う際には :ref:`SpringSecurityAuthorization`\ の節で説明しているSpring Securiyのロールによる認可も併用することができる。
+
+以下に認可エンドポイントアクセス時のフローを示す。
 
 .. figure:: ./images/OAuth_AutohrizationServerAuthArchitecture.png
     :width: 100%
@@ -539,14 +600,28 @@ Spring Security OAuthでは、\ ``AuthorizationEndpoint``\ においてリソー
     * - 項番
       - 説明
     * - | (1)
-      - | ユーザエージェントが認可サーバの認可エンドポイント(/oauth/authorize)にアクセスすることで\ ``AuthorizationEndpoint``\ の処理が実行される。
+      - | ユーザエージェントがクライアントからの指示により認可サーバの認可エンドポイント(\ ``/oauth/authorize``\ )に
+          アクセスすることで認可サーバの処理が実行される。
     * - | (2)
-      - | \ ``ClientDetailsService``\ のメソッドを呼び出し、事前に登録されているクライアント情報を取得後、リクエストパラメータを検証する。
+      - | アクセス先のURL(\ ``/oauth/authorize``\ )を処理する\ ``AuthorizationEndpoint``\ では、
+          \ ``ClientDetailsService``\ のメソッドを呼び出し、事前に登録されているクライアント情報を取得後、リクエストパラメータを検証する。
     * - | (3)
       - | \ ``UserApprovalHandler``\ のメソッドを呼び出し、クライアントへスコープに対する認可が登録されているかチェックする。
-        | 認可が未登録である場合、ユーザエージェント経由でリソースオーナへ認可を問い合わせる画面(/oauth/confirm_access)を表示させる。
-        | このとき、問い合わせの対象となるスコープはリクエストパラメータと事前に登録されているクライント情報の積をとり、Spring MVCの\ ``@SessionAttributes``\ を利用して連携される。
     * - | (4)
+      - | 認可が未登録である場合、\ ``UserApprovalHandler``\ よりリソースオーナに認可を問い合わせる画面(認可画面)の要素を取得し、
+          認可画面を表示させるURL(\ ``/oauth/confirm_access``\ )へフォワードさせる。
+        | このとき、問い合わせの対象となるスコープはリクエストパラメータと事前に登録されているクライント情報の積をとり、
+          Spring MVCの\ ``@SessionAttributes``\ を利用して連携される。
+    * - | (5)
+      - | フォワード先のURL(\ ``/oauth/confirm_access``\ )を処理する\ ``AccessConfirmationController``\ では、
+          ユーザエージェント経由でリソースオーナに認可画面を表示させる。
+    * - | (6)
+      - | リソースオーナの画面操作により認可が行われた場合、再度認可エンドポイント(\ ``/oauth/authorize``\ )にアクセスが行われる。
+        | このとき、リクエストパラメータとして\ ``user_oauth_approval``\ が付与される。
+    * - | (7)
+      - | \ ``AuthorizationEndpoint``\ では\ ``user_oauth_approval``\ パラメータを付与しアクセスされた場合、\ ``UserApprovalHandler``\ の
+          メソッドを呼び出し認可情報を登録する。
+    * - | (8)
       - | \ ``UserApprovalHandler``\ の実装である\ ``ApprovalStoreUserApprovalHandler``\ では\ ``ApprovalStore``\により認可の状態を管理する。
         | リソースオーナにより認可が行われた場合、\ ``ApprovalStore``\ のメソッドを呼び出し、指定された情報を登録する。
 
@@ -560,6 +635,16 @@ Spring Security OAuthでは、\ ``AuthorizationEndpoint``\ においてリソー
 
 |
 
+
+アクセストークンの発行
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+Spring Security OAuthは、トークンエンドポイント（\ ``TokenEndpoint``\）をSpring MVCの機能を利用して提供している。
+
+トークンエンドポイントはアクセストークンの発行を\ ``AuthorizationServerTokenService``\ のデフォルト実装である\ ``DefaultTokenServices``\ によって行っている。
+アクセストークンの発行の際には、\ ``ClientDetailsService``\を介して認可サーバに登録済みのクライアント情報を取得し、アクセストークン発行の可否の検証に使用している。
+
+以下にトークンエンドポイントアクセス時のフローを示す。
+
 .. figure:: ./images/OAuth_AutohrizationServerTokenArchitecture.png
     :width: 100%
 
@@ -571,7 +656,7 @@ Spring Security OAuthでは、\ ``AuthorizationEndpoint``\ においてリソー
     * - 項番
       - 説明
     * - | (1)
-      - | クライアントが認可サーバのトークンエンドポイント(/oauth/token)にアクセスすることで\ ``TokenEndpoint``\ の処理が実行される。
+      - | クライアントが認可サーバのトークンエンドポイント(/oauth/token)にアクセスすることでトークンエンドポイントの処理が実行される。
     * - | (2)
       - | \ ``ClientDetailsService``\ のメソッドを呼び出し、事前に登録されているクライアント情報を取得後、リクエストパラメータのスコープがクライアントに登録済みのものかチェックする。
     * - | (3)
@@ -589,14 +674,13 @@ Spring Security OAuthでは、\ ``AuthorizationEndpoint``\ においてリソー
 
 リソースサーバ
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-リソースサーバは、クライアントからの保護されたリソースに対するアクセス要求を処理し、レスポンスを返す。
-リソースサーバは、クライアントからのリクエストに付加されるアクセストークンについて、有効期限内であることを検証し、アクセストークンに紐づく認証情報を取得する。
-認証情報の取得後は、要求されたリソースが当該アクセストークンのスコープ範囲内であることを検証する。
-アクセストークン検証後の処理は、通常のアプリケーションと同様に実装を行うことができる。
+リソースサーバでは、アクセストークン自体の妥当性とアクセストークンが保持するスコープ内のリソースへのアクセスであることを検証する機能を提供する。
 
 Spring Security OAuthでは、アクセストークンの検証機能を、Spring Securityの認証・認可の枠組みを利用して実現している。
-具体的には、\ ``ServletFilter``\ にSpring Security OAuthが提供する\ ``OAuth2AuthenticationProcessingFilter``\ を使用し、
-\ ``AuthenticationEntryPoint``\インタフェース として\ ``OAuth2AuthenticationEntryPoint``\ を、\ ``AuthenticationManager``\ として\ ``OAuth2AuthenticationManager``\ をそれぞれ使用している。
+具体的には、Authentication FilterにSpring Security OAuthが提供する\ ``OAuth2AuthenticationProcessingFilter``\ を、
+認証処理に\ ``AuthenticationManager``\ の実装クラスである\ ``OAuth2AuthenticationManager``\ を、
+認証エラーの応答に\ ``AuthenticationEntryPoint``\ の実装クラスである\ ``OAuth2AuthenticationEntryPoint``\ をそれぞれ使用している。
+
 Spring Securityの詳細については :ref:`SpringSecurityAuthentication`\ を参照のこと。
 
 以下にリソースサーバの構成を示す
@@ -612,21 +696,22 @@ Spring Securityの詳細については :ref:`SpringSecurityAuthentication`\ を
     * - 項番
       - 説明
     * - | (1)
-      - | 初めにクライアントがリソースサーバにアクセスすると\ ``OAuth2AuthenticationProcessingFilter``\ の
-        | 呼び出しが行われる。
-        | \ ``OAuth2AuthenticationProcessingFilter``\ではアクセストークンの抽出を行う。
+      - | 初めにクライアントがリソースサーバにアクセスすると\ ``OAuth2AuthenticationProcessingFilter``\ の呼び出しが行われる。
+        | \ ``OAuth2AuthenticationProcessingFilter``\ではリクエストよりアクセストークンを抽出する。
     * - | (2)
-      - | アクセストークンを抽出後、\ ``AuthenticationManager``\の実装である\ ``OAuth2AuthenticationManager``\ において\ ``ResourceServerTokenServices``\ を
-        | 介してアクセストークンに紐づく認証情報を取得する。また、認証情報の取得時にアクセストークンを検証する。
-        | アクセストークンに紐づく認証情報の取得方法には、認可サーバに対してHTTPによる問い合わせを行うほか、認可サーバと
-        | \ ``TokenStore``\ を共用して取得を行うなどの方法がある。
-        | どのようにして認証情報の取得を行うかについては\ ``ResourceServerTokenServices``\ の実装に依存する。
+      - | アクセストークンを抽出後、\ ``AuthenticationManager``\の実装である\ ``OAuth2AuthenticationManager``\ において\ ``ResourceServerTokenServices``\ の
+          メソッドを呼び出しアクセストークンに紐づく認証情報を取得する。また、認証情報の取得時にアクセストークンを検証する。
+        | アクセストークンに紐づく認証情報の取得方法は、認可サーバに対してHTTPによる問い合わせを行うほか、認可サーバと\ ``TokenStore``\ を共用して取得を行うなどの方法がある。
+        | どのようにして認証情報の取得を行うかについては\ ``ResourceServerTokenServices``\ の実装クラスに依存する。
+    * - | (2')
+      - | \ ``OAuth2AuthenticationProcessingFilter``\にて認証エラーが発生した場合、\ ``AuthenticationEntryPoint``\ の実装である\ ``OAuth2AuthenticationEntryPoint``\ に処理を委譲し、エラー応答を行う。
     * - | (3)
-      - | アクセストークンの検証に成功した場合、クライアントからのリクエストに応じたリソースを返却する。
+      - | \ ``OAuth2AuthenticationProcessingFilter``\ の処理が完了した場合、次のSecurity Filter(\ ``ExceptionTranslationFilter``\ )の呼び出しが行われる。
+        | \ ``ExceptionTranslationFilter``\ の詳細については \ :ref:`AuthorizationErrorResponse`\ を参照のこと。
+    * - | (3')
+      - | \ ``ExceptionTranslationFilter``\ にて認可エラーをキャッチした場合、\ ``AccessDeniedHandler``\ の実装である、\ ``OAuth2AccessDeniedHandler``\ に処理を委譲し、エラー応答を行う。
     * - | (4)
-      - | 認証エラー時に発生する例外は、\ ``OAuth2AuthenticationEntryPoint``\ を使用してハンドリングし、エラー応答を行う。
-    * - | (5)
-      - | 認可エラー時に発生する例外は、\ ``OAuth2AccessDeniedHandler``\ を使用してハンドリングし、エラー応答を行う。
+      - | リクエストの認証・認可の検証に成功した場合、クライアントからのリクエストに応じたリソースを返却する。
 
 
 |
@@ -635,18 +720,15 @@ Spring Securityの詳細については :ref:`SpringSecurityAuthentication`\ を
 
 クライアント
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-クライアントは、リソースオーナの認可とアクセストークンを取得し、リソースオーナの代理としてリソースサーバの保護されたリソースに対してアクセスを行う。
-その際、リソースへのリクエストには認可サーバから発行されたアクセストークンを付加する。
+クライアントでは、リソースオーナからの認可を取得するために認可サーバへ誘導（リダイレクト）する機能と、アクセストークンを取得してリソースサーバへアクセスする機能を提供する。
 
-Spring Security OAuthでは、クライアントの基本的な機能の実現方法として\ ``RestOperations``\ のOAuth 2.0向けの実装である\ ``OAuth2RestTemplate``\ を提供している。
+Spring Security OAuthは、アクセストークンを取得してリソースサーバへアクセスするために利用する\ ``OAuth2RestTemplate``\ や\ ``OAuth2ClientContextFilter``\ を提供している。
 
-\ ``OAuth2RestTemplate``\ では、アクセストークンの発行やリフレッシュトークンを使用したアクセストークンの再発行、また、アクセストークンを使用したリソースサーバへのアクセスといった機能のほか、
-サーブレットフィルタとして\ ``OAuth2ClientContextFilter``\ を利用することで、認可コードグラントなどで必要となる認可の機能を実現している。
+\ ``OAuth2RestTemplate``\ は\ ``RestTemplate``\ を拡張しOAuth 2.0向けの機能を追加したクラスで、リフレッシュトークンを使用してアクセストークンを再取得する仕組みや、アクセストークンを取得する際にリソースオーナから認可が必要な場合に例外（\ ``UserRedirectRequiredException``\ ）をスローする仕組みを備えている。
+なお、\ ``OAuth2ClientContextFilter``\ をサーブレットフィルタに登録することで、\ ``OAuth2RestTemplate``\ で発生した\ ``UserRedirectRequiredException``\ をハンドリングして認可サーバへ誘導（リダイレクト）することが可能となる。
 
 また、\ ``OAuth2RestTemplate``\ では\ ``OAuth2ProtectedResourceDetails``\ にて指定されたグラントタイプに沿って認可サーバより取得したアクセストークンを\ ``OAuth2ClientContext``\ の実装である\ ``DefaultOAuth2ClientContext``\ に保持する。
 \ ``DefaultOAuth2ClientContext``\ はデフォルトではセッションスコープのBeanとして定義され、複数のリクエスト間でアクセストークンを共有をすることが可能となる。
-
-リソースサーバへのアクセス機能の開発をする際は、\ ``RestOperations``\ の実装としてSpring Webが提供する\ ``RestTemplate``\ の代わりにSpring Security OAuthが提供する\ ``OAuth2RestTemplateを``\ 使用する以外は、通常のRESTクライアントの開発と同様の実装をする。
 
 以下に、クライアント機能として\ ``OAuth2RestTemplate``\ を使用した場合の構成を示す。
 
@@ -662,14 +744,14 @@ Spring Security OAuthでは、クライアントの基本的な機能の実現�
     * - 項番
       - 説明
     * - | (1)
-      - | ユーザエージェントがクライアントの\ ``Service``\ の呼び出しが行われるよう\ ``Controller``\ へアクセスを行う。
+      - | ユーザエージェントがクライアントの\ ``Service``\ の呼び出しが行われるよう\ ``Controller``\ へアクセスする。
         | リソースサーバへのアクセスを伴うアクセスに対しては、(5)で発生する可能性がある\ ``UserRedirectRequiredException``\ を捕捉するためのサーブレットフィルタ（\ ``OAuth2ClientContextFilter``\ ）を適用する。
         | このサーブレットフィルタを適用することで、\ ``UserRedirectRequiredException``\ が発生した際に、ユーザエージェントを認可サーバの認可エンドポイントへアクセスさせることができる。
     * - | (2)
       - | \ ``Service``\ より\ ``OAuth2RestTemplate``\ の呼び出しを行う。
     * - | (3)
-      - | リソースサーバへアクセスする前に、メンバとして保持している\ ``DefaultOAuth2ClientContext``\ よりアクセストークンを保持しているか確認を行う。
-        | アクセストークンを保持しており、かつ有効期限内である場合、\ ``DefaultOAuth2ClientContext``\ より取得したアクセストークンを指定してリソースサーバへのアクセスを行う。
+      - | \ ``OAuth2ClientContext``\ に保持しているアクセストークンを取得する。
+        | 有効なアクセストークンを取得できた場合は、(6)の処理に移る。
     * - | (4)
       - | 初回アクセス時などでアクセストークンを保持していなかった場合、または有効期限が超過していた場合、\ ``AccessTokenProvider``\ を呼び出しアクセストークンの取得を行う。
     * - | (5)
@@ -827,9 +909,7 @@ Spring Security OAuthが提供しているクラスを使用するために、Sp
 
 .. code-block:: xml
 
-        <oauth2:authorization-server
-             token-endpoint-url="/oth2/token"
-             authorization-endpoint-url="/oth2/authorize" >  <!-- (1) -->
+        <oauth2:authorization-server>  <!-- (1) -->
             <oauth2:authorization-code />  <!-- (2) -->
             <oauth2:refresh-token />  <!-- (3) -->
         </oauth2:authorization-server>
@@ -843,9 +923,16 @@ Spring Security OAuthが提供しているクラスを使用するために、Sp
       - 説明
     * - | (1)
       - | \ ``<oauth2:authorization-server>``\ タグを使用し、認可サーバの定義を行う。
-        | \ ``<oauth2:authorization-server>``\ タグを使用することで、認可を行うための認可エンドポイントと、アクセストークンを発行するためのトークンエンドポイントがコンポーネントとして登録される。
-        | \ ``token-endpoint-url``\ 属性にトークンエンドポイントのURLを指定する。指定しない場合はデフォルト値である "/oauth/token" が指定される。
-        | \ ``authorization-endpoint-url``\ 属性に認可エンドポイントのURLを指定する。指定しない場合はデフォルト値である "/oauth/authorize" が指定される。
+        | \ ``<oauth2:authorization-server>``\ タグを使用することで、認可を行うための認可エンドポイントと、
+          アクセストークンを発行するためのトークンエンドポイントがコンポーネントとして登録される。
+        |
+        | 各コンポーネントにアクセスするため、以下のパスが設定される。
+
+        * 認可エンドポイント： \ ``/oauth/authorize``\
+        * トークンエンドポイント： \ ``/oauth/token``\
+        * リソースオーナから認可を取得する際のフォワード先： \ ``/oauth/confirm_access``\
+        * 認可エンドポイントで認可エラーが発生した場合のフォワード先： \ ``/oauth/error``\
+
     * - | (2)
       - | \ ``<oauth2:authorization-code />``\ タグを使用して、認可コードグラントをサポートする。
     * - | (3)
@@ -854,8 +941,17 @@ Spring Security OAuthが提供しているクラスを使用するために、Sp
 .. warning::
 
     \ ``<oauth2:authorization-code />``\ タグと\ ``<oauth2:refresh-token />``\ タグは上記の順番で設定する必要がある。
-    
+
     詳細は\ :ref:`OrderOfAuthoraizationServerSupportSetting`\を参照されたい。
+
+|
+
+.. note::
+
+    \ ``<oauth2:authorization-server>``\ タグを使用することで登録されるエンドポイント、およびフォワード先のパスは
+    それぞれカスタマイズすることが可能である。
+
+    詳細は\ :ref:`CustomizeEndPoint`\、\ :ref:`CustomizeForward`\を参照されたい。
 
 |
 
@@ -871,31 +967,27 @@ Spring Security OAuthが提供しているクラスを使用するために、Sp
     認可コードは、認可コードが発行されてからアクセストークンの発行までの短い期間しか使われないため、デフォルトではインメモリで管理される。
     認可サーバが複数台構成の場合は、複数サーバ間で認可コードを共有するためにDBで管理する必要がある。
     認可コードをDBで管理する場合は、主キーとなる認可コードを保持するカラムと、認証情報を保持するカラムによって構成された以下のようなテーブルを作成する。以下の例ではPostgreSQLを使用した場合のDB定義を説明する。
-    
+
     .. figure:: ./images/OAuth_ERDiagramCode.png
         :width: 30%
-    
+
     認可サーバの設定ファイルには、\ ``<oauth2:authorization-code />``\ タグの\ ``authorization-code-services-ref``\ に、認可コードをDB管理する\ ``org.springframework.security.oauth2.provider.code.JdbcAuthorizationCodeServices``\ のBean IDを指定する。
     \ ``JdbcAuthorizationCodeServices``\ のコンストラクタには、認可コード格納用のテーブルに接続するためのデータソースを指定する。
     認可コードをDBにて永続管理する場合の注意点については\ :ref:`OAuthAuthorizationServerHowToControllTarnsaction`\ を **必ず** 参照のこと。
-    
+
     * ``oauth2-auth.xml``
-    
+
     .. code-block:: xml
     
-            <oauth2:authorization-server
-                 token-endpoint-url="/oth2/token"
-                 authorization-endpoint-url="/oth2/authorize" >
+            <oauth2:authorization-server>
                 <oauth2:authorization-code authorization-code-services-ref="authorizationCodeServices"/>
                 <!-- omitted -->
             </oauth2:authorization-server>
-            
+
             <bean id="authorizationCodeServices"
                   class="org.springframework.security.oauth2.provider.code.JdbcAuthorizationCodeServices">
                 <constructor-arg ref="codeDataSource"/>
             </bean>
-            
-            <!-- omitted -->
 
 |
 
@@ -906,8 +998,8 @@ Spring Security OAuthが提供しているクラスを使用するために、Sp
 エンドポイントに対してアクセスしてきたクライアントについては、登録済みのクライアントか確認するために認証を行う必要がある。
 クライアントの認証は、クライアントよりパラメータで渡されたクライアントIDとパスワードを、認可サーバで保持しているクライアント情報をもとに検証することで行う。認証にはBasic認証を用いて行う。
 
-Spring Security OAuthではクライアント情報を取得するためのインタフェースである\ ``oorg.springframework.security.oauth2.provider.ClientDetailsService``\ の実装クラスを提供している。 
-また、クライアントの情報を保持するためのクラスとして\ ``ClientDetails``\ インタフェースの実装クラスである\ ``org.springframework.security.oauth2.provider.client.BaseClientDetails``\ クラスを提供している。
+Spring Security OAuthではクライアント情報を取得するためのインタフェースである\ ``oorg.springframework.security.oauth2.provider.ClientDetailsService``\ の実装クラスを提供している。
+また、クライアント情報を保持するためのクラスとして\ ``ClientDetails``\ インタフェースの実装クラスである\ ``org.springframework.security.oauth2.provider.client.BaseClientDetails``\ クラスを提供している。
 \ ``BaseClientDetails``\ ではクライアントIDやサポートするグラントタイプなどのOAuth 2.0を利用する上での基本的なパラメータを提供しており、\ ``BaseClientDetails``\ を拡張することで独自のパラメータを追加することも可能である。
 ここでは\ ``BaseClientDetails``\の拡張と\ ``ClientDetailsService``\ の実装クラス作成を行い、独自パラメータとして クライアント名 を追加したクライアント情報をDBを用いて管理、および認証を行う場合の実装方法について説明する。
 
@@ -927,11 +1019,13 @@ Spring Security OAuthではクライアント情報を取得するためのイ�
     * - | (1)
       - | クライアント情報を保持するテーブル。client_idを主キーとする。
         | 各カラムの役割は以下のとおりである。
-        |  ・client_id：クライアントを識別するIDであるクライアントIDを保持するカラム。
-        |  ・client_secret：クライアントの認証に使用するパスワードを保持するカラム。
-        |  ・client_name：クライアント名を保持する独自カラム。独自カラムであるため必須ではない。
-        |  ・access_token_validity：アクセストークンの有効期間[秒]を保持するカラム。
-        |  ・refresh_token_validity：リフレッシュトークンの有効期間[秒]を保持するカラム。
+
+        * client_id：クライアントを識別するIDであるクライアントIDを保持するカラム。
+        * client_secret：クライアントの認証に使用するパスワードを保持するカラム。
+        * client_name：クライアント名を保持する独自カラム。独自カラムであるため必須ではない。
+        * access_token_validity：アクセストークンの有効期間[秒]を保持するカラム。
+        * refresh_token_validity：リフレッシュトークンの有効期間[秒]を保持するカラム。
+
     * - | (2)
       - | スコープ情報を保持するテーブル。client_idを外部キーとし、クライアント情報と対応付けする。
         | scopeカラムに、クライアント認可に使用するスコープを保持する。クライアントがもつスコープの数だけレコードを登録する。
@@ -946,10 +1040,10 @@ Spring Security OAuthではクライアント情報を取得するためのイ�
         | authorized_grant_typeカラムに、クライアントの使用するグラントを保持する。
         | クライアントが利用するグラントの数だけレコードを登録する。
     * - | (5)
-      - | リダイレクトURL情報を保持するテーブル。client_idを外部キーとし、クライアント情報と対応付けする。
-        | web_server_redirect_uriカラムに、リソースオーナによる認可後にユーザエージェントをリダイレクトさせるURLを保持する。
-        | クライアントが認可リクエスト時に申告するURLと、ホストとルートパスが一致するリダイレクトURLがない場合はエラーとなる。
-        | クライアントが申告する可能性のあるURLの数だけレコードを登録する。
+      - | リダイレクトURI情報を保持するテーブル。client_idを外部キーとし、クライアント情報と対応付けする。
+        | web_server_redirect_uriカラムに、リソースオーナによる認可後にユーザエージェントをリダイレクトさせるURIを保持する。
+        | 保持するリダイレクトURIは、クライアントが認可リクエスト時に申告するリダイレクトURIのホワイトリストチェックで使用される。
+        | クライアントが申告する可能性のあるURIの数だけレコードを登録する。
 
 
 クライアント情報を保持するモデルを作成する。
@@ -987,6 +1081,13 @@ Spring Security OAuthではクライアント情報を取得するためのイ�
       - | リフレッシュトークンの有効期間[秒]を保持するフィールド。
 
 
+.. note::
+
+    クライアント情報を操作するためのRepositoryクラスを作成する必要があるが、ここでは説明を割愛する。
+    具体的な実装方法については\ :ref:`repository-label`\ を参照されたい。
+
+|
+
 \ ``BaseClientDetails``\ クラスを継承させたクラスを作成することで、クライアントの詳細情報を簡単に拡張することができる。
 
 * ``OAuthClientDetails.java``
@@ -1009,28 +1110,27 @@ Spring Security OAuthではクライアント情報を取得するためのイ�
         @Service("clientDetailsService") // (1)
         @Transactional
         public class OAuthClientDetailsService implements ClientDetailsService {
-        
+
             @Inject
             ClientRepository clientRepository;
-        
+
             @Override
             public ClientDetails loadClientByClientId(String clientId)
                     throws ClientRegistrationException {
-                
+
                 Client client = clientRepository.findClientByClientId(clientId); // (2)
-                
+
                 if (client == null) { // (3)
                       throw new NoSuchClientException("No client with requested id: " + clientId);
                 }
-                
+
                 // (4)
                 Set<String> clientScopes = clientRepository.findClientScopesByClientId(clientId);
                 Set<String> clientResources = clientRepository.findClientResourcesByClientId(clientId);
                 Set<String> clientGrants = clientRepository.findClientGrantsByClientId(clientId);
                 Set<String> clientRedirectUris = clientRepository.findClientRedirectUrisByClientId(clientId);
-                
-                
-                 // (5)
+
+                // (5)
                 OAuthClientDetails clientDetails = new OAuthClientDetails();
                 clientDetails.setClientId(client.getClientId());
                 clientDetails.setClientSecret(client.getClientSecret());
@@ -1041,10 +1141,10 @@ Spring Security OAuthではクライアント情報を取得するためのイ�
                 clientDetails.setAuthorizedGrantTypes(clientGrants);
                 clientDetails.setRegisteredRedirectUri(clientRedirectUris);
                 clientDetails.setClient(client);
-                
+
                 return clientDetails;
             }
-            
+
         }
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -1058,9 +1158,12 @@ Spring Security OAuthではクライアント情報を取得するためのイ�
       - | Serviceとしてcomponent-scanの対象とするため、クラスレベルに\ ``@Service``\ アノテーションをつける。
         | Bean名を\ ``clientDetailsService``\ として指定する。
     * - | (2)
-      - | データベースから取得したクライアント情報をClientモデルに保持させる。
+      - | データベースからクライアント情報を取得する。
     * - | (3)
       - | クライアント情報が見つからない場合は、Spring Security OAuthの例外である\ ``NoSuchClientException``\ を発生させる。
+        | なお、認可エンドポイントでもクライアント情報の取得のため本処理が呼び出されるが、\ ``NoSuchClientException``\ が発生した場合は認可エンドポイントによってハンドリングされ、
+        | \ ``OAuth2Exception``\ のサブクラスである\ ``BadClientCredentialsException``\がスローされる。
+        | 認可エンドポイントで\ ``OAuth2Exception``\ が発生した場合のハンドリング方法については\ :ref:`OAuthAuthorizationServerHowToHandleError`\ を参照されたい。
     * - | (4)
       - | クライアントに紐付く情報を取得する。
         | 複数回にわけてRepositoryの呼び出しを行うことにより処理性能が落ちるような場合は(2)で一括取得する。
@@ -1074,20 +1177,18 @@ Spring Security OAuthではクライアント情報を取得するためのイ�
 
 .. code-block:: xml
 
-        <sec:http pattern="/oth2/*token*/**" 
-            authentication-manager-ref="clientAuthenticationManager" realm="Realm">  <!-- (1) -->
-            <sec:http-basic />           <!-- (2) -->
-            <sec:csrf disabled="true"/>  <!-- (3) -->
-            <sec:intercept-url pattern="/**" access="isAuthenticated()"/>  <!-- (4) -->
-        </sec:http>
-
-        <oauth2:authorization-server 
-             token-endpoint-url="/oth2/token"
-             authorization-endpoint-url="/oth2/authorize"
-             client-details-service-ref="clientDetailsService">  <!-- (5) -->
+        <oauth2:authorization-server
+             client-details-service-ref="clientDetailsService">  <!-- (1) -->
             <oauth2:authorization-code />
             <oauth2:refresh-token />
         </oauth2:authorization-server>
+
+        <sec:http pattern="/oauth/*token*/**"
+            authentication-manager-ref="clientAuthenticationManager" realm="Realm">  <!-- (2) -->
+            <sec:http-basic />           <!-- (3) -->
+            <sec:csrf disabled="true"/>  <!-- (4) -->
+            <sec:intercept-url pattern="/**" access="isAuthenticated()"/>  <!-- (5) -->
+        </sec:http>
 
         <sec:authentication-manager id="clientAuthenticationManager">  <!-- (6) -->
             <sec:authentication-provider user-service-ref="clientDetailsUserService" >  <!-- (7) -->
@@ -1095,9 +1196,14 @@ Spring Security OAuthではクライアント情報を取得するためのイ�
             </sec:authentication-provider>
         </sec:authentication-manager>
 
+        <bean id="oauthAuthenticationEntryPoint" class="org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint">
+            <property name="typeName" value="Basic" />  <!-- (9) -->
+            <property name="realmName" value="Realm" />  <!-- (10) -->
+        </bean>
+
         <bean id="clientDetailsUserService"
-            class="org.springframework.security.oauth2.provider.client.ClientDetailsUserDetailsService">  <!-- (9) -->
-            <constructor-arg ref="clientDetailsService" />  <!-- (10) -->
+            class="org.springframework.security.oauth2.provider.client.ClientDetailsUserDetailsService">  <!-- (11) -->
+            <constructor-arg ref="clientDetailsService" />  <!-- (12) -->
         </bean>
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -1109,28 +1215,29 @@ Spring Security OAuthではクライアント情報を取得するためのイ�
     * - 項番
       - 説明
     * - | (1)
-      - | アクセストークン操作に関するエンドポイントへのセキュリティ設定を行うために、エンドポイントURLとして
-          \ ``/oth2/*token*/``\ 配下をアクセス制御の対象として指定する。
-        | ここでは、アクセス制御対象となるエンドポイントURLを \ ``/oth2/``\ から始まる値としているが、
-          Spring Security OAuthにより定義されているエンドポイントURL、およびそのデフォルト値は以下のとおりである。
-        |  ・トークン払い出しに使用するエンドポイントのエンドポイントURLである\ ``/oauth/token``\ 
-        |  ・トークンを検証するエンドポイントのエンドポイントURLである\ ``/oauth/check_token``\ 
-        |  ・JWTの署名を公開鍵暗号方式で作成した場合に、公開鍵を取得するために使用するエンドポイントのエンドポイントURLである\ ``/oauth/token_key``\ 
-        | \ ``authentication-manager-ref``\ 属性に(5)で定義しているクライアント認証用の\ ``AuthenticationManager``\のBeanを指定する。
-        | また、(2)のようにXML NamespaceでBasic認証を有効にした場合、Basic認証のRealm名が \ ``"Spring Security Application"``\ となり、
-        | アプリケーションの内部情報が露呈してしまうため、\ ``realm``\ 属性に適切な値を指定する。
-    * - | (2)
-      - | クライアント認証にBasic認証を適用する。
-        | 詳細については http://docs.spring.io/spring-security/site/docs/4.1.4.RELEASE/reference/html/basic.html を参照されたい。
-    * - | (3)
-      - | \ ``/oth2/*token*/**``\ へのアクセスに対してCSRF対策機能を無効化する。
-        | Spring Security OAuthでは、OAuth 2.0のCSRF対策として推奨されている、stateパラメータを使用したリクエストの正当性確認を採用している。
-    * - | (4)
-      - | エンドポイントURLの配下に対して、認証済みユーザーのみがアクセスできる権限を付与する設定。
-        | Webリソースに対してアクセスポリシーの指定方法については、\ :doc:`../../Security/Authorization`\ を参照されたい。
-    * - | (5)
       - | \ ``client-details-service-ref``\ 属性に\ ``OAuthClientDetailsService``\ のBeanを指定する。
         | 指定するBeanIDは、\ ``ClientDetailsService``\ の実装クラスで指定したBeanIDと合わせる必要がある。
+    * - | (2)
+      - | アクセストークン操作に関するエンドポイントへのセキュリティ設定を行うために、エンドポイントURLとして
+          \ ``/oauth/*token*/``\ 配下をアクセス制御の対象として指定する。
+          Spring Security OAuthにより定義されているエンドポイントURL、およびそのデフォルト値は以下のとおりである。
+
+        * トークン払い出しに使用するエンドポイントのエンドポイントURLである\ ``/oauth/token``\ 
+        * トークンを検証するエンドポイントのエンドポイントURLである\ ``/oauth/check_token``\ 
+        * JWTの署名を公開鍵暗号方式で作成した場合に、公開鍵を取得するために使用するエンドポイントのエンドポイントURLである\ ``/oauth/token_key``\ 
+
+        | \ ``authentication-manager-ref``\ 属性に(6)で定義しているクライアント認証用の\ ``AuthenticationManager``\のBeanを指定する。
+        | また、(3)のようにXML NamespaceでBasic認証を有効にした場合、Basic認証のRealm名が \ ``"Spring Security Application"``\ となり、
+        | アプリケーションの内部情報が露呈してしまうため、\ ``realm``\ 属性に適切な値を指定する。
+    * - | (3)
+      - | クライアント認証にBasic認証を適用する。
+        | 詳細については\ `Basic and Digest Authentication <http://docs.spring.io/spring-security/site/docs/4.1.4.RELEASE/reference/html/basic.html>`_\を参照されたい。
+    * - | (4)
+      - | \ ``/oauth/*token*/**``\ へのアクセスに対してCSRF対策機能を無効化する。
+        | Spring Security OAuthでは、OAuth 2.0のCSRF対策として推奨されている、stateパラメータを使用したリクエストの正当性確認を採用している。
+    * - | (5)
+      - | エンドポイントURLの配下に対して、認証済みユーザーのみがアクセスできる権限を付与する設定。
+        | Webリソースに対してアクセスポリシーの指定方法については、\ :doc:`../../Security/Authorization`\ を参照されたい。
     * - | (6)
       - | クライアントを認証するための\ ``AuthenticationManager``\ をBean定義する。
         | リソースオーナの認証で使用する\ ``AuthenticationManager``\ と別名のBean IDを指定する必要がある。
@@ -1141,9 +1248,15 @@ Spring Security OAuthではクライアント情報を取得するためのイ�
       - | クライアントの認証に使用するパスワードのハッシュ化に使用する\ ``PasswordEncoder``\ のBeanを指定する。
         | パスワードハッシュ化の詳細については \ :ref:`SpringSecurityAuthenticationPasswordHashing`\ を参照されたい。
     * - | (9)
+      - | クライアントの認証に失敗した場合に、レスポンスヘッダでクライアントに提示するクライアント認証の認証スキームを指定する。
+    * - | (10)
+      - | クライアントの認証に失敗した場合に、レスポンスヘッダでクライアントに提示するクライアント認証のレルムを指定する。
+        | クライアント認証のレルムをカスタマイズしたい場合に設定する。
+        | 指定しない場合はデフォルト値である\ ``oauth``\ が設定される。
+    * - | (11)
       - | \ ``UserDetailsService``\ インタフェースの実装クラスである\ ``ClientDetailsUserDetailsService``\ をBean定義する。
         | リソースオーナの認証で使用する\ ``UserDetailsService``\ と別名のBean IDを指定する必要がある。
-    * - | (10)
+    * - | (12)
       - | コンストラクタの引数に、データベースからクライアント情報を取得する\ ``OAuthClientDetailsService``\のBeanを指定する。
         | 指定するBean IDは、\ ``ClientDetailsService``\ の実装クラスで指定したBean IDと合わせる必要がある。
 
@@ -1174,24 +1287,24 @@ Spring Securityの詳細については \ :doc:`../../Security/Authentication`\ 
             <sec:form-login login-page="/login"
                 authentication-failure-url="/login?error=true"
                 login-processing-url="/login" />
-            <sec:logout logout-url="/logout" 
-                logout-success-url="/" 
+            <sec:logout logout-url="/logout"
+                logout-success-url="/"
                 delete-cookies="JSESSIONID" />
             <sec:access-denied-handler ref="accessDeniedHandler"/>
             <sec:custom-filter ref="userIdMDCPutFilter" after="ANONYMOUS_FILTER"/>
             <sec:session-management />
             <sec:intercept-url pattern="/login/**" access="permitAll" />
-            <sec:intercept-url pattern="/oth2/**" access="isAuthenticated()" /> <!-- (2) -->
+            <sec:intercept-url pattern="/oauth/**" access="isAuthenticated()" /> <!-- (2) -->
             <!-- omitted -->
         </sec:http>
-        
+
          <sec:authentication-manager id="userLoginManager"> <!-- (3) -->
             <sec:authentication-provider
                 user-service-ref="userDetailsService">
                 <sec:password-encoder ref="passwordEncoder" />
             </sec:authentication-provider>
         </sec:authentication-manager>
-        
+
         <bean id="userDetailsService"
             class="org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl">
             <property name="dataSource" ref="dataSource" />
@@ -1205,19 +1318,19 @@ Spring Securityの詳細については \ :doc:`../../Security/Authentication`\ 
     * - 項番
       - 説明
     * - | (1)
-      - | 認可エンドポイントURLである\ ``/oth2/authorize``\ 、認可画面の表示を行うコントローラのURLである\ ``/oauth/confirm_access``\ 、認可エンドポイントのエラーハンドリングを行うコントローラのURLである\ ``/oauth/error``\ を含んだルート("\ ``/``\ ")配下をアクセス制御の対象として指定する。
+      - | 認可エンドポイントURLである\ ``/oauth/authorize``\ 、認可画面の表示を行うコントローラのURLである\ ``/oauth/confirm_access``\ 、認可エンドポイントのエラーハンドリングを行うコントローラのURLである\ ``/oauth/error``\ を含んだルート("\ ``/``\ ")配下をアクセス制御の対象として指定する。
     * - | (2)
-      - | 認可エンドポイントURLである\ ``/oth2/authorize``\ 、認可画面の表示を行うコントローラのURLである\ ``/oauth/confirm_access``\ 、認可エンドポイントのエラーハンドリングを行うコントローラのURLである\ ``/oauth/error``\ を含んだルート("\ ``/oth2/``\ ")配下を認証済みユーザーのみがアクセスできるよう指定する。
+      - | 認可エンドポイントURLである\ ``/oauth/authorize``\ 、認可画面の表示を行うコントローラのURLである\ ``/oauth/confirm_access``\ 、認可エンドポイントのエラーハンドリングを行うコントローラのURLである\ ``/oauth/error``\ を含んだルート("\ ``/oauth/``\ ")配下を認証済みユーザーのみがアクセスできるよう指定する。
     * - | (3)
       - | リソースオーナを認証するための\ ``AuthenticationManager``\ をBean定義する。
         | クライアントの認証で使用する\ ``AuthenticationManager``\ と別名のBean IDを指定する必要がある。
 
 
-.. _OAuthAuthorizationServerHowToAuthorizeByScope: 
+.. _OAuthAuthorizationServerHowToAuthorizeByScope:
 
 スコープごとの認可
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-リソースオーナに認可を求める際に、要求されたスコープを一括で認可するのではなく、各スコープを個別に認可する場合の設定方法を説明する。
+リソースオーナからの認可の取得時に、要求されたスコープを一括で認可するのではなく、各スコープを個別に認可する場合の設定方法を説明する。
 
 認可サーバを再起動した際に認可情報を失わないよう永続管理するために、また複数台の認可サーバで認可情報を共有するためには、認可情報をDBで管理する必要がある。
 スコープごとに認可情報を格納するためのDBとして、以下のDBを作成する。以下の例ではPostgreSQLを使用した場合のDB定義を説明する。
@@ -1236,12 +1349,13 @@ Spring Securityの詳細については \ :doc:`../../Security/Authentication`\ 
     * - | (1)
       - | 認可情報を保持するテーブル。userId、clientId、scopeを主キーとする。
         | 各カラムの役割は以下のとおりである。
-        |  ・userId：認可を行ったリソースオーナのユーザ名を保持するカラム。
-        |  ・clientId：リソースオーナによって認可されたクライアントのクライアントIDを保持するカラム。
-        |  ・scope：リソースオーナに認可されたスコープを保持するカラム。
-        |  ・status：リソースオーナに認可されたかどうかを保持するカラム。認可された場合は\ ``APPROVED``\ 、拒否された場合は\ ``DENIED``\ が設定される。
-        |  ・expiresAt：認可情報の有効期限を保持するカラム。
-        |  ・lastModifiedAt：認可情報が最後に更新された日時を保持するカラム。
+
+        * userId：認可を行ったリソースオーナのユーザ名を保持するカラム。
+        * clientId：リソースオーナによって認可されたクライアントのクライアントIDを保持するカラム。
+        * scope：リソースオーナに認可されたスコープを保持するカラム。
+        * status：リソースオーナに認可されたかどうかを保持するカラム。認可された場合は\ ``APPROVED``\ 、拒否された場合は\ ``DENIED``\ が設定される。
+        * expiresAt：認可情報の有効期限を保持するカラム。
+        * lastModifiedAt：認可情報が最後に更新された日時を保持するカラム。
 
 リソースオーナからスコープ毎の認可を取得し、DBに保存して管理するための設定を行う。
 
@@ -1253,13 +1367,13 @@ Spring Securityの詳細については \ :doc:`../../Security/Authentication`\ 
 
         <oauth2:authorization-server
              client-details-service-ref="clientDetailsService"
-             token-endpoint-url="/oth2/token"
-             authorization-endpoint-url="/oth2/authorize"
              user-approval-handler-ref="userApprovalHandler"> <!-- (1) -->
-             
+
              <!-- omitted -->
-             
+
         </oauth2:authorization-server>
+
+        <!-- omitted -->
 
         <bean id="userApprovalHandler"
               class="org.springframework.security.oauth2.provider.approval.ApprovalStoreUserApprovalHandler">  <!-- (2) -->
@@ -1305,14 +1419,14 @@ Spring Securityの詳細については \ :doc:`../../Security/Authentication`\ 
     認可情報を永続管理する必要がなく、DBではなくインメモリで管理したい場合は、\ ``approvalStore``\ として\ ``org.springframework.security.oauth2.provider.approval.InMemoryApprovalStore``\ をBean定義すればよい。
 
 
-.. _OAuthAuthorizationServerHowToCustomizeAuthorizeView: 
+.. _OAuthAuthorizationServerHowToCustomizeAuthorizeView:
 
 スコープ認可画面のカスタマイズ
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 スコープ認可画面をカスタマイズしたい場合、コントローラとJSPを作成することでカスタマイズできる。以下ではスコープ認可画面のカスタマイズした場合の例を説明する。
 
-リソースオーナに認可を求めるエンドポイントの呼び出しを行う場合、(コンテキストパス)/oauth/confirm_accessにフォワードされる。
+リソースオーナからの認可を取得するためにエンドポイントの呼び出しを行う場合、(コンテキストパス)/oauth/confirm_accessにフォワードされる。
 (コンテキストパス)/oauth/confirm_accessをハンドリングするコントローラを作成する。
 
 * ``OAuth2ApprovalController.java``
@@ -1321,13 +1435,13 @@ Spring Securityの詳細については \ :doc:`../../Security/Authentication`\ 
 
         @Controller
         public class OAuth2ApprovalController {
-                
+
             @RequestMapping("/oauth/confirm_access") // (1)
             public String confirmAccess() {
                 // omitted
                 return "approval/oauthConfirm";
             }
-        
+
         }
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -1342,22 +1456,23 @@ Spring Securityの詳細については \ :doc:`../../Security/Authentication`\ 
 
 
 次に、スコープ認可画面のJSPを作成する。
-認可対象のスコープは\ ``scopes``\ キーでModelに登録されているため、これを利用してスコープ認可画面を表示する。
+認可対象のスコープは\ ``scopes``\ キーとして、リクエストパラメータは\ ``authorizationRequest``\
+としてModelに登録されているため、これを利用してスコープ認可画面を表示する。
 
 * ``oauthConfirm.jsp``
 
 .. code-block:: jsp
 
     <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
-    
+
     <body>
         <div id="wrapper">
             <h1>OAuth Approval</h1>
-            <p>Do you authorize '${f:h(authorizationRequest.clientId)}' to access your protected resources?</p>
-            <form id='confirmationForm' name='confirmationForm' action='${pageContext.request.contextPath}/oth2/authorize' method='post'>
-                <c:forEach var="scope" items="${scopes}" varStatus="status">  <!-- (1) -->
+            <p>Do you authorize '${f:h(authorizationRequest.clientId)}' to access your protected resources?</p>  <!-- (1) -->
+            <form id='confirmationForm' name='confirmationForm' action='${pageContext.request.contextPath}/oauth/authorize' method='post'>
+                <c:forEach var="scope" items="${scopes}" varStatus="status">  <!-- (2) -->
                     <li>
-                        ${f:h(scope.key)}  <!-- (2) -->
+                        ${f:h(scope.key)}
                         <input type='radio' name="${f:h(scope.key)}" value='true'/>Approve
                         <input type='radio' name="${f:h(scope.key)}" value='false'/>Deny
                     </li>
@@ -1379,10 +1494,11 @@ Spring Securityの詳細については \ :doc:`../../Security/Authentication`\ 
     * - 項番
       - 説明
     * - | (1) 
-      - | スコープ毎に認可を指定するためのラジオボタンを出力する。対象のスコープは\ ``scopes``\ リストに含まれるため、\ ``items``\ に\ ``scopes``\ を指定する。
+      - | クライアントIDを画面に表示させる。
+        | \ ``authorizationRequest``\ の型は\ ``AuthorizationRequest``\ であり、クライアントIDは\ ``authorizationRequest.clientId``\ と指定することで出力される。
     * - | (2)
-      - | \ ``scopes``\ リストが保持する要素のキー名が、それぞれのスコープ名となっているため、キー名を画面表示する。
-        | 許可、拒否を選ぶために、Approve、Denyのラジオボタンの出力設定を行う。
+      - | スコープ毎に認可可否を指定するためのラジオボタンを出力する。対象のスコープは\ ``scopes``\ に含まれるため、\ ``items``\ に\ ``scopes``\ を指定する。
+        | \ ``scopes``\ の型は\ ``LinkedHashMap``\ であり、スコープ名をキーとして 、そのスコープに対する認可可否の情報を保持している。
     * - | (3)
       - | \ ``user_oauth_approval``\ をhidden項目として埋め込むことで、Spring Security OAuthがリクエストパラメータに\ ``user_oauth_approval``\ を付与する。
         | リクエストパラメータに付与された\ ``user_oauth_approval``\ は、認可エンドポイントのスコープ認可を行うメソッドを実行するために用いられる。
@@ -1394,7 +1510,7 @@ Spring Securityの詳細については \ :doc:`../../Security/Authentication`\ 
 認可リクエスト時のエラーハンドリング
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-認可エンドポイントで認可エラー（クライアント未存在エラー等のセキュリティに関わるエラーや、リダイレクトURLチェックエラー）が発生した場合、Spring Security OAuthが提供する\ ``OAuth2Exception``\ が\ ``throw``\され 、リクエストは(コンテキストパス)/oauth/errorにフォワードされる。
+認可エンドポイントで認可エラー（クライアント未存在エラー等のセキュリティに関わるエラーや、リダイレクトURIチェックエラー）が発生した場合、Spring Security OAuthが提供する\ ``OAuth2Exception``\ が\ ``throw``\され 、リクエストは(コンテキストパス)/oauth/errorにフォワードされる。
 そのため認可エンドポイントでの例外をハンドリングする場合は(コンテキストパス)/oauth/errorをハンドリングするコントローラを作成する必要がある。
 
 * ``OAuth2ErrorController.java``
@@ -1403,13 +1519,13 @@ Spring Securityの詳細については \ :doc:`../../Security/Authentication`\ 
 
         @Controller
         public class OAuth2ErrorController {
-                
+
             @RequestMapping("/oauth/error") // (1)
             public String handleError() {
                 // omitted
                 return "common/error/oauthError";
             }
-        
+
         }
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -1424,7 +1540,7 @@ Spring Securityの詳細については \ :doc:`../../Security/Authentication`\ 
 
 
 次に、表示させるエラー画面のJSPを作成する。
-認可エンドポイントで発生したエラー内容は\ ``error``\ キーでModelに登録されているため、これを利用してエラー内容を画面表示する。
+認可エンドポイントでスローされた\ ``OAuth2Exception``\ の内容は\ ``error``\ キーでModelに登録されているため、これを利用してエラー内容を画面表示する。
 
 * ``oauthError.jsp``
 
@@ -1456,16 +1572,28 @@ Spring Securityの詳細については \ :doc:`../../Security/Authentication`\ 
     * - 項番
       - 説明
     * - | (1)
-      - | \ ``error``\ に含まれるエラーレスポンスを出力する。
+      - | \ ``error``\ に含まれるOAuth 2.0のエラーコードを出力する。
+        | エラーコードは、invalid_request、invalid_clientといった値を持つ。
     * - | (2) 
       - | \ ``error``\ に含まれるエラーメッセージを出力する。
 
 .. note::
 
-    認可エンドポイントで発生したエラーが、認可エラー（クライアント未存在エラー等のセキュリティに関わるエラーや、リダイレクトURLチェックエラー）以外の場合、
+    認可エンドポイントで発生したエラーが、認可エラー（クライアント未存在エラー等のセキュリティに関わるエラーや、リダイレクトURIチェックエラー）以外の場合、クライアントの呼び出し元のコントローラに
     リダイレクトすることでクライアント側にエラー通知を行う。
 
+.. tip::
 
+    Internet Explorerがサポートブラウザとなっている場合は、
+    エラー画面として応答するHTMLのサイズが512バイトより大きくなるように実装する必要がある。
+
+    Internet Explorerでは、
+    
+    * 応答されたステータスコードがエラー系(4xxと5xx)
+    * 応答されたHTMLが512バイト以下
+    * ブラウザの設定が「HTTP簡易メッセージを表示する」が有効な状態
+    
+    という３つの条件を充たした際に、Internet Explorerが用意している簡易メッセージが表示される仕組みになっているためである。
 
 .. _OAuthAuthorizationServerHowToConfigureAccessToken:
 
@@ -1512,10 +1640,10 @@ Spring Securityの詳細については \ :doc:`../../Security/Authentication`\ 
         | メモリを介して連携させるため、共有DBやHTTPアクセスによるアクセストークンの連携が不要となる。
         | メモリを介してアクセストークンを共有する実装はサーバ再起動などでアクセストークンが失われるため、テスト用途専用の実装である。
 
-| 
+|
 
 .. todo:: **TBD**
-    
+
     JWTを利用した連携の実装方法については、次版以降で詳細化する予定である。
 
 
@@ -1524,11 +1652,10 @@ Spring Securityの詳細については \ :doc:`../../Security/Authentication`\ 
 HTTPアクセスを介した連携ついては本節のHow To Extendにて説明している。
 
  * \ :ref:`OAuthAuthorizationServerHowToCooperateWithHttp`\
- 
+
 共有DBを介して連携させる場合、Spring Security OAuthが提供している\ ``JdbcTokenStore``\ を使用する。
 
 実装例は以下のとおりである。
-
 
 * ``oauth2-auth.xml``
 
@@ -1536,13 +1663,13 @@ HTTPアクセスを介した連携ついては本節のHow To Extendにて説明
 
         <oauth2:authorization-server
              client-details-service-ref="clientDetailsService"
-             token-endpoint-url="/oth2/token"
-             authorization-endpoint-url="/oth2/authorize"
              user-approval-handler-ref="userApprovalHandler"
              token-services-ref="tokenServices">  <!-- (1) -->
             <oauth2:authorization-code />
             <oauth2:refresh-token />
         </oauth2:authorization-server>
+
+        <!-- omitted -->
 
         <bean id="tokenServices"
             class="org.springframework.security.oauth2.provider.token.DefaultTokenServices">  <!-- (2) -->
@@ -1593,21 +1720,26 @@ HTTPアクセスを介した連携ついては本節のHow To Extendにて説明
     * - | (1)
       - | アクセストークンを管理するテーブル。認可サーバで発行したアクセストークンの情報をリソースサーバと共有するために使用する。
         | 各カラムの役割は以下のとおりである。
-        |  ・authentication_id：認証情報を一意に識別する認証キーを保持するカラム。主キーとする。
-        |  ・token：トークンの情報をシリアル化してバイナリとして保持するカラム。保持するトークンの情報としては、アクセストークンの有効期限、スコープ、アクセストークンのトークンID、リフレッシュトークンのトークンID、使用しているトークンの種類を表すトークンタイプを保持する。
-        |  ・token_id：アクセストークンを一意に識別するトークンIDを保持するカラム。
-        |  ・user_name：認証されたリソースオーナのユーザ名を保持するカラム。
-        |  ・client_id：認証されたクライアントのクライアントIDを保持するカラム。
-        |  ・authentication：リソースオーナとクライアントの認証情報をシリアル化してバイナリとして保持するカラム。
-        |  ・refresh_token：アクセストークンに紐付くリフレッシュトークンのトークンIDを保持するカラム。
+
+        * authentication_id：認証情報を一意に識別する認証キーを保持するカラム。主キーとする。
+        * | token：トークンの情報をシリアル化してバイナリとして保持するカラム。
+          | 保持するトークンの情報としては、アクセストークンの有効期限、スコープ、アクセストークンのトークンID、リフレッシュトークンのトークンID、使用しているトークンの種類を表すトークンタイプを保持する。
+        * token_id：アクセストークンを一意に識別するトークンIDを保持するカラム。
+        * user_name：認証されたリソースオーナのユーザ名を保持するカラム。
+        * client_id：認証されたクライアントのクライアントIDを保持するカラム。
+        * authentication：リソースオーナとクライアントの認証情報をシリアル化してバイナリとして保持するカラム。
+        * refresh_token：アクセストークンに紐付くリフレッシュトークンのトークンIDを保持するカラム。
+
     * - | (2)
       - | アクセストークンに紐付くリフレッシュトークンを管理するテーブル。
         | 各カラムの役割は以下のとおりである。
-        |  ・token_id：リフレッシュトークンを一意に識別するトークンIDを保持するカラム。主キーとする。
-        |  ・token：トークンの情報をシリアル化してバイナリとして保持するカラム。リフレッシュトークンの有効期限を保持する。
-        |  ・authentication：リソースオーナとクライアントの認証情報をシリアル化してバイナリとして保持するカラム。アクセストークンを管理するテーブルで保持している認証情報と同じ情報を保持する。
 
-| 
+        * token_id：リフレッシュトークンを一意に識別するトークンIDを保持するカラム。主キーとする。
+        * token：トークンの情報をシリアル化してバイナリとして保持するカラム。リフレッシュトークンの有効期限を保持する。
+        * | authentication：リソースオーナとクライアントの認証情報をシリアル化してバイナリとして保持するカラム。
+          | アクセストークンを管理するテーブルで保持している認証情報と同じ情報を保持する。
+
+|
 
 .. note::
 
@@ -1639,9 +1771,9 @@ HTTPアクセスを介した連携ついては本節のHow To Extendにて説明
 .. code-block:: java
 
     public interface RevokeTokenService {
-        
+
         String revokeToken(String tokenValue, String clientId);
-        
+
     }
 
 * ``RevokeTokenServiceImpl.java``
@@ -1651,20 +1783,20 @@ HTTPアクセスを介した連携ついては本節のHow To Extendにて説明
     @Service
     @Transactional
     public class RevokeTokenServiceImpl implements RevokeTokenService {
-        
+
         @Inject
         ConsumerTokenServices consumerService; // (1)
-        
+
         @Inject
         TokenStore tokenStore; // (2)
-        
+
         @Inject
         ApprovalStore approvalStore; // (3)
-        
+
         public String revokeToken(String tokenValue, String clientId){ // (4)
             // (5)
             OAuth2Authentication authentication = tokenStore.readAuthentication(tokenValue);
-            if (authentication != null) {                
+            if (authentication != null) {
                 if (clientId.equals(authentication.getOAuth2Request().getClientId())) { // (6)
                     // (7)
                     Authentication user = authentication.getUserAuthentication();
@@ -1678,7 +1810,7 @@ HTTPアクセスを介した連携ついては本節のHow To Extendにて説明
                     }
                     consumerService.revokeToken(tokenValue); // (8)
                     return "success";
-                    
+
                 } else {
                     return "invalid client";
                 }
@@ -1728,17 +1860,17 @@ HTTPアクセスを介した連携ついては本節のHow To Extendにて説明
 .. code-block:: java
 
     @RestController
-    @RequestMapping("oth2")
+    @RequestMapping("oauth")
     public class TokenRevocationRestController {
-        
+
         @Inject
         RevokeTokenService revokeTokenService;
-        
+
         @RequestMapping(value = "tokens/revoke", method = RequestMethod.POST) // (1)
         @ResponseStatus(HttpStatus.OK)
         public String revoke(@RequestParam("token") String token,
             @AuthenticationPrincipal UserDetails user){
-            
+
             // (2)
             String clientId = user.getUsername();
             String result = revokeTokenService.revokeToken(token, clientId); // (3)
@@ -1754,7 +1886,7 @@ HTTPアクセスを介した連携ついては本節のHow To Extendにて説明
     * - 項番
       - 説明
     * - | (1)
-      - | \ ``@RequestMapping``\ アノテーションを使用して、\ ``"/oth2/tokens/revoke"``\ へのアクセスに対するメソッドとしてマッピングを行う。
+      - | \ ``@RequestMapping``\ アノテーションを使用して、\ ``"/oauth/tokens/revoke"``\ へのアクセスに対するメソッドとしてマッピングを行う。
         | ここで指定するパスは\ :ref:`OAuthAuthorizationServerClientAuthentication`\で行った設定と同様に、Basic認証の適用とCSRF対策機能の無効化を行う必要がある。
     * - | (2)
       - | Basic認証で生成された認証情報からトークンの取り消し時のチェックで使用するクライアントIDを取得する。
@@ -1762,7 +1894,7 @@ HTTPアクセスを介した連携ついては本節のHow To Extendにて説明
       - | \ ``RevokeTokenService``\ を呼び出し、トークンの取り消しを行う。
         | リクエストパラメータとして受け取ったアクセストークンの値と、認証情報から取得したクライアントIDをパラメータとして渡す。
 
-| 
+|
 
 .. tip::
 
@@ -1784,28 +1916,29 @@ HTTPアクセスを介した連携ついては本節のHow To Extendにて説明
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 認可サーバにおけるトランザクション制御の注意点について説明する。
 
-認可サーバにおいてSpring Security OAuthが取り扱う情報（認可コード、認可情報、トークン）をDBにて管理する場合には、トランザクション制御の考慮が必要となる。
+Spring Security OAuthが取り扱う情報（認可コード、認可情報、トークン）をDBにて管理する場合には、トランザクション管理について考慮する必要がある。
 
-\ ``AuthorizationServerTokenServices``\ のデフォルト実装である\ ``DefaultTokenServices``\ ではアクセストークン、リフレッシュトークンを発行するメソッドである
-\ ``createAccessToken``\ 、\ ``refreshAccessToken``\ にそれぞれ\ ``@Transactional``\ が付与されていることでトランザクション管理下で呼び出しが行われるが、それ以外は非トランザクション管理となる。
+アクセストークンやリフレッシュトークンを発行する\ ``DefaultTokenServices``\ には\ ``@Transactional``\ アノテーションが付与されており、
+トランザクション管理が行われるが、認可コードを操作する\ ``AuthorizationCodeServices``\ や認可情報を操作する
+\ ``UserApprovalHandler``\ には\ ``@Transactional``\ アノテーションが付与されておらず、トランザクション管理が行われない。
 
-そのため、\ ``DataSource``\ から取得する\ ``Connection``\ の設定が\ ``autoCommit=false``\ となっている場合、管理対象となる情報がDBに登録されないためトランザクション管理が必須である。
-また、\ ``autoCommit=true``\ の場合は必須ではないが、データの一貫性を担保するためのトランザクション管理の考慮が必要となるため、注意すること。
+そのため、\ ``DataSource``\ から取得するコネクションの自動コミットが無効となっている場合、管理対象となる情報がDBに登録されないため、トランザクション制御の設定が必須となる。
+なお、自動コミットが有効な場合でも、データの一貫性を担保するためにトランザクションを管理する必要がある。
 
 認可コード、認可情報をDBにて管理する場合のトランザクション制御設定例を以下に示す。
 
 * ``oauth2-auth.xml``
 
 .. code-block:: xml
-    
+
     <!-- omitted -->
-    
+
     <tx:advice id="oauthTransactionAdvice">
         <tx:attributes>
             <tx:method name="*"/>
         </tx:attributes>
     </tx:advice>
-    
+
     <aop:config>
         <aop:pointcut id="authorizationOperation"
                       expression="execution(* org.springframework.security.oauth2.provider.code.AuthorizationCodeServices.*(..))"/> <!-- (1) -->
@@ -1835,6 +1968,8 @@ HTTPアクセスを介した連携ついては本節のHow To Extendにて説明
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 リソースサーバの実装方法について説明する。
+
+リソースサーバでは、アクセストークンの検証とリソースに対しての認可制御をSpring Security OAuthの機能を使用して提供する。
 
 ここではTODOリソースのREST APIに対して認可制御を実現する方法を説明する。
 
@@ -1873,7 +2008,7 @@ HTTPアクセスを介した連携ついては本節のHow To Extendにて説明
 
         <bean id="oauth2AccessDeniedHandler"
                   class="org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHandler" /> <!-- (5) -->
-        
+
         <bean id="oauth2AuthenticationEntryPoint"
                   class="org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint" /> <!-- (6) -->
 
@@ -1897,15 +2032,16 @@ HTTPアクセスを介した連携ついては本節のHow To Extendにて説明
         | \ ``entry-point-ref``\には\ ``OAuth2AuthenticationEntryPoint``\のBeanを指定する。ここでの設定は定義上必要だが指定したBeanは使用されない。
           実際に使用されるのは後述する\ ``OAuth2AuthenticationProcessingFilter``\に指定している\ ``OAuth2AuthenticationEntryPoint``\のBeanである。
     * - | (2)
-      - | \ ``access-denied-handler``\には\ ``OAuth2AccessDeniedHandler``\のBeanを設定する。ここでは後述する\ ``oauth2AccessDeniedHandler``\を指定している。
+      - | \ ``access-denied-handler``\には\ ``OAuth2AccessDeniedHandler``\のBeanを設定する。ここでは(5)で定義している\ ``oauth2AccessDeniedHandler``\のBeanを指定する。
     * - | (3)
-      - | CSRFトークンチェックによってPOST、PUT、DELETEといったリクエストを受けると必ずエラーになるため、CSRFを無効にする。
+      - | 本実装例ではCSRF対策を無効化する。
+        | CSRF対策については\ :ref:`RESTHowToUseSecurityCsrf`\を参照されたい。
     * - | (4)
-      - | \ ``custom-filter``\にはリソースサーバ用の認証フィルタを指定する。ここでは後述する\ ``oauth2AuthenticationFilter``\を指定している。
-        | この指定により\ ``OAuth2AuthenticationProcessingFilter``\が設定される。
+      - | \ ``custom-filter``\にはリソースサーバ用の認証フィルタとして\ ``OAuth2AuthenticationProcessingFilter``\を設定する。
+        | ここでは(7)で定義している\ ``oauth2AuthenticationFilter``\のBeanを指定する。
         | \ ``OAuth2AuthenticationProcessingFilter``\はリクエストに含まれるアクセストークンを利用してPre-Authenticationを行うためのフィルタであるため、
         | \ ``before``\に\ ``PRE_AUTH_FILTER``\を指定し\ ``PRE_AUTH_FILTER``\の前に\ ``OAuth2AuthenticationProcessingFilter``\の処理が実行されるように設定する。
-        | Pre-Authenticationについては\ `こちら <http://docs.spring.io/spring-security/site/docs/3.0.x/reference/preauth.html>`_\を参照されたい。
+        | Pre-Authenticationについては\ `Pre-Authentication Scenarios <http://docs.spring.io/spring-security/site/docs/3.0.x/reference/preauth.html>`_\を参照されたい。
     * - | (5)
       - | Spring Security OAuthが提供するリソースサーバ用の\ ``AccessDeniedHandler``\を定義する。
         | \ ``OAuth2AccessDeniedHandler``\は、認可エラー時に発生する例外をハンドリングしてエラー応答を行う。
@@ -1913,6 +2049,7 @@ HTTPアクセスを介した連携ついては本節のHow To Extendにて説明
       - | OAuth用のエラー応答を行うための\ ``OAuth2AuthenticationEntryPoint``\をBean定義する。
     * - | (7)
       - | Spring Security OAuthが提供するリソースサーバ用のServletFilterを定義する。
+        | \ ``<oauth2:resource-server>``\ タグを使用することで、Authentication Filterとして\ ``OAuth2AuthenticationProcessingFilter``\ が登録される。
         | \ ``id``\属性に指定した文字列はBeanのIDとなる。ここでは ``oauth2AuthenticationFilter``\を指定している。
         | \ ``resource-id``\属性にはサーバが提供するリソースのIDを指定する。ここでは\ ``todoResource``\を指定している。
         | アクセストークンに紐付くクライアント情報のリソースIDに対し、\ ``resource-id``\属性に指定したリソースIDが含まれているか検証が行われる。
@@ -1959,7 +2096,6 @@ HTTPアクセスを介した連携ついては本節のHow To Extendにて説明
 
 
 実装例は以下のとおりである。
-なお、認可サーバ、リソース間でセキュリティが担保されていることを前提としているため、アクセス制御の設定において、クライアントに対するBasic認証は行っていない。
 
 * ``oauth2-resource.xml``
 
@@ -1991,7 +2127,7 @@ HTTPアクセスを介した連携ついては本節のHow To Extendにて説明
         </sec:http>
 
         <!-- omitted -->
-        
+
         <oauth2:web-expression-handler id="oauth2ExpressionHandler" /> <!-- (3) -->
 
     </beans>
@@ -2031,10 +2167,6 @@ Spring Security OAuthが用意している主なExpressionを紹介する。
 
     * - Expression
       - 説明
-    * - | \ ``clientHasRole(String role)``\
-      - | クライアントが引数に指定されたロールを持っている場合に\ ``true``\を返却する。
-    * - | \ ``clientHasAnyRole(String... roles)``\
-      - | クライアントが引数に指定されたいずれかのロールを持っている場合に\ ``true``\を返却する。
     * - | \ ``hasScope(String scope)``\
       - | クライアントがリソースオーナから認可されているスコープと引数のスコープが一致する場合に\ ``true``\を返却する。
     * - | \ ``hasAnyScope(String... scopes)``\
@@ -2043,6 +2175,10 @@ Spring Security OAuthが用意している主なExpressionを紹介する。
       - | クライアントがリソースオーナから認可されているスコープと引数に指定された正規表現が一致する場合に\ ``true``\を返却する。
     * - | \ ``hasAnyScopeMatching(String... scopesRegex)``\
       - | クライアントがリソースオーナから認可されているスコープと引数に指定されたいずれかの正規表現が一致する場合に\ ``true``\を返却する。
+    * - | \ ``clientHasRole(String role)``\
+      - | クライアントが引数に指定されたロールを持っている場合に\ ``true``\を返却する。
+    * - | \ ``clientHasAnyRole(String... roles)``\
+      - | クライアントが引数に指定されたいずれかのロールを持っている場合に\ ``true``\を返却する。
     * - | \ ``denyOAuthClient``\
       - | OAuth 2.0でのリクエストを拒否する。リソースオーナのみがリソースにアクセスできるようにするために使用される。
     * - | \ ``isOAuth``\
@@ -2051,7 +2187,7 @@ Spring Security OAuthが用意している主なExpressionを紹介する。
 .. note::
 
     SpEL式についてはSpring Securityが提供するSpELを合わせて使用することができる。
-    
+
     Spring Securityが提供するSpELについては :ref:`built-incommon-expressions` を参照されたい。
 
 |
@@ -2082,7 +2218,7 @@ Spring Security OAuthが用意している主なExpressionを紹介する。
           <constructor-arg ref="tokenDataSource" />
         </bean>
 
-.. note:: 
+.. note::
 
     認可サーバとリソースサーバを連携させる方法として、Spring Security OAuthで提供されている\ ``RemoteTokenServices``\を利用する方法や、
     JSON Web Tokenを利用する方法がある。
@@ -2104,15 +2240,15 @@ Spring Security OAuthが用意している主なExpressionを紹介する。
     @RestController
     @RequestMapping("api")
     public class TodoRestController {
-        
+
         // omitted
 
         @RequestMapping(value = "todos", method = RequestMethod.GET)
         @ResponseStatus(HttpStatus.OK)
         public Collection<Todo> list(@AuthenticationPrincipal UserDetails user) { // (1)
-        
+
             // omitted
-        
+
         }
     }
 
@@ -2137,18 +2273,18 @@ Spring Security OAuthが用意している主なExpressionを紹介する。
     @RestController
     @RequestMapping("api")
     public class TodoRestController {
-        
+
         // omitted
 
         @RequestMapping(value = "todos", method = RequestMethod.GET)
         @ResponseStatus(HttpStatus.OK)
         public Collection<Todo> list(OAuth2Authentication authentication) { // (1)
-        
+
             String username = authentication.getUserAuthentication().getName(); // (2)
             String clientId = authentication.getOAuth2Request().getClientId();  // (3)
-        
+
             // omitted
-        
+
         }
     }
 
@@ -2172,7 +2308,7 @@ Spring Security OAuthが用意している主なExpressionを紹介する。
     \ ``OAuth2Authentication``\ に依存しない実装を行いたい場合\ ``HandlerMethodArgumentResolver``\ を実装することで同様の機能が実現可能である。
     具体的な実装方法については、\ :ref:`methodargumentresolver`\ を参照されたい。
 
-| 
+|
 
 
 .. _ImplementationOAuthClientServerOfAutorizationCode:
@@ -2189,7 +2325,7 @@ Spring Security OAuthが用意している主なExpressionを紹介する。
 
 クライアントでは、\ ``OAuth2RestTemplate``\を利用し、グラントタイプやスコープなどのアプリケーション用件に沿ったパラメータを定義することで、OAuth 2.0機能を使用したリソースへのアクセスが可能となる。
 
-.. note:: 
+.. note::
 
     Spring Security OAuth以外のアーキテクチャで実装されているリソースサーバにアクセスする場合は、REST APIでのアクセスを受け付けているか確認されたい。リソースサーバのAPIが異なる場合は\ `OAuth2RestTemplate`\以外の手段でアクセスする必要がある。
 
@@ -2310,7 +2446,7 @@ OAuth2ClientContextFilterの適用
         | 上記例では、すべてのリクエストに対して\ ``OAuth2ClientContextFilter``\ を適用している。
 
 .. note::
-    \ ``OAuth2ClientContextFilter``\ は、認可サーバが認可処理後にユーザエージェントを戻すリダイレクトURLの生成をフィルタの前処理で行っているため、
+    \ ``OAuth2ClientContextFilter``\ は、認可サーバが認可処理後にユーザエージェントを戻すリダイレクトURIの生成をフィルタの前処理で行っているため、
     \ ``/*``\ のような広範囲な定義にすると\ ``UserRedirectRequiredException``\ が発生しないパスに対して無駄な処理が行われることになる。
 
 .. note::
@@ -2335,9 +2471,9 @@ OAuth2ClientContextFilterの適用
 
     <bean id="systemExceptionResolver"
         class="org.terasoluna.gfw.web.exception.SystemExceptionResolver">
-        
+
         <!-- omitted -->
-    
+
         <property name="excludedExceptions">
             <array>
                 <!-- (1) -->
@@ -2374,8 +2510,8 @@ OAuth2RestTemplateの設定
                      client-secret="firstSecSecret"
                      type="authorization_code"
                      scope="READ,WRITE"
-                     access-token-uri="${auth.serverUrl}/oth2/token"
-                     user-authorization-uri="${auth.serverUrl}/oth2/authorize"/> <!-- (1) -->
+                     access-token-uri="${auth.serverUrl}/oauth/token"
+                     user-authorization-uri="${auth.serverUrl}/oauth/authorize"/> <!-- (1) -->
 
     <oauth2:rest-template id="todoAuthCodeGrantResourceRestTemplate" resource="todoAuthCodeGrantResource" /> <!-- (2) -->
 
@@ -2401,7 +2537,7 @@ OAuth2RestTemplateの設定
      .. list-table:: **リソース詳細情報**
          :header-rows: 1
          :widths: 35 65
-     
+
          * - 項目
            - 説明
          * - | \ ``id``\
@@ -2416,31 +2552,55 @@ OAuth2RestTemplateの設定
            - | 認可を要求するスコープをカンマ区切りで列挙する。設定値は大文字、小文字を区別する。
              | 省略時は認可サーバにおいてクライアントに対して設定しているスコープを全て要求する。
          * - | \ ``access-token-uri``\
-           - | アクセストークンの発行を依頼するための認可サーバのエンドポイントのURL。
+           - | アクセストークンの発行を依頼するための認可サーバのエンドポイントURL。
          * - | \ ``user-authorization-uri``\
-           - | リソースオーナの認可を得るための認可サーバのエンドポイントのURL。
+           - | リソースオーナの認可を得るための認可サーバのエンドポイントURL。
+
+.. note::
+
+    本実装例では、実装中に設定する各サーバのコンテキストルートを以下のプレースホルダで表現している。
+    
+        .. tabularcolumns:: |p{0.15\linewidth}|p{0.20\linewidth}|p{0.65\linewidth}|
+        .. list-table::
+            :header-rows: 1
+            :stub-columns: 1
+            :widths: 50 50
+            
+            * - プレースホルダのキー
+              - 設定値
+            * - \ ``auth.serverUrl``\
+              - 認可サーバのコンテキストルート
+            * - \ ``resource.serverUrl``\
+              - リソースサーバのコンテキストルート
+            * - \ ``client.serverUrl``\
+              - クライアントのコンテキストルート
+    
+    また、各サーバのエンドポイントの絶対パスを表現する場合は、パスが明示的にわかるよう、\ ``${auth.serverUrl}/oauth/token``\ のように
+    プレースホルダ以下にパスを指定している。実際にアプリケーションを開発する際には、
+    例えばエンドポイントが外部システムである場合、外部システム仕様変更時のエンドポイントパス変更に対応するためにパス全体をプレースホルダで表現するなど、要件に応じてパスの指定方法を検討することを推奨する。
+
 
 .. note::
 
     \ ``<oauth2:resource>``\ タグでは、アクセストークン取得時のクライアント認証方法を指定する方法として
     \ ``client-authentication-scheme``\ パラメータが用意されている。
     \ ``client-authentication-scheme``\ パラメータに指定可能な値は以下の通り。
-    
+
         * \ ``header``\ : Authorizationヘッダを使用したBasic認証。デフォルト値。
         * \ ``query``\  : リクエスト時のURLクエリパラメータを使用した認証。
         * \ ``form``\   : リクエスト時のボディパラメータを使用した認証。
-    
+
     本ガイドラインではクライアントの認証にBasic認証を利用するため上記の設定例では未指定としているが、
     アプリケーション要件に沿ったパラメータの指定を行うこと。
-    
+
      .. code-block:: xml
 
         <oauth2:resource id="todoAuthCodeGrantResource" client-id="firstSec"
                          client-secret="firstSecSecret"
                          type="authorization_code"
                          scope="READ,WRITE"
-                         access-token-uri="${auth.serverUrl}/oth2/token"
-                         user-authorization-uri="${auth.serverUrl}/oth2/authorize"
+                         access-token-uri="${auth.serverUrl}/oauth/token"
+                         user-authorization-uri="${auth.serverUrl}/oauth/authorize"
                          client-authentication-scheme="form" />
 
 
@@ -2474,7 +2634,7 @@ OAuth2RestTemplateの設定
         RestOperations restOperations; // (1)
 
         @Value("${resource.serverUrl}/api/v1/todos")
-        String uri;
+        String url;
 
         @Override
         public List<Todo> getTodoList() {
@@ -2503,7 +2663,7 @@ OAuth2RestTemplateの設定
     一度認可サーバにリダイレクトされる。
     その後、アクセストークンの発行が完了するとクライアントへリダイレクトされ、再度リソースサーバへのアクセス処理が呼び出される形となる。
     この時、クライアントへのリダイレクトはGETにより行われるため、認可サーバからリダイレクトされる可能性のあるControllerはGETを許容する必要がある。
-    
+
     また、リダイレクト前のリソースサーバへのアクセスがPOSTである場合、リダイレクト後のGETではパラメータが失われてしまう。
     その場合、POSTパラメータをセッションに保持する等の対処が必要となるため、注意すること。
     本ガイドラインでは、具体的な対処方法の説明については割愛する。
@@ -2529,7 +2689,7 @@ OAuth2RestTemplateの設定
 * ``oauth2-client.xml``
 
 .. code-block:: xml
-    
+
     <!-- (1) -->
     <bean id="revokeRestTemplate" class="org.springframework.web.client.RestTemplate">
         <property name="interceptors">
@@ -2565,9 +2725,9 @@ OAuth2RestTemplateの設定
 .. code-block:: java
 
     public interface RevokeTokenClientService {
-        
+
         String revokeToken();
-        
+
     }
 
 * ``RevokeTokenClientServiceImpl.java``
@@ -2577,26 +2737,26 @@ OAuth2RestTemplateの設定
     @Service
     public class RevokeTokenClientServiceImpl implements RevokeTokenClientService {
     
-        @Value("${auth.serverUrl}/api/v1/oth2/tokens/revoke")
+        @Value("${auth.serverUrl}/api/v1/oauth/tokens/revoke")
         String revokeTokenUrl; // (1)
-        
+
         @Inject
         @Named("todoAuthCodeGrantResourceRestTemplate")
         OAuth2RestOperations oauth2RestOperations; // (2)
-        
+
         @Inject
         @Named("revokeRestTemplate")
         RestOperations revokeRestOperations; // (3)
-        
+
         @Override
         public String revokeToken() {
-            
+
             String token = getTokenValue(oauth2RestOperations);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
             MultiValueMap<String, String> variables = new LinkedMultiValueMap<String, String>();
             variables.add("token", token);
-            
+
             String result = revokeRestOperations.postForObject(revokeTokenUrl,
                 new HttpEntity<MultiValueMap<String, String>>(variables, headers),
                 String.class); // (4)
@@ -2606,7 +2766,7 @@ OAuth2RestTemplateの設定
             }
             return result;
         }
-    
+
         // (6)
         private String getTokenValue(OAuth2RestOperations oauth2RestOperations) {
             String tokenValue = "";
@@ -2616,7 +2776,7 @@ OAuth2RestTemplateの設定
             }
             return tokenValue;
         }
-    
+
         // (7)
         private void initContextToken(OAuth2RestOperations oauth2RestOperations) {
             oauth2RestOperations.getOAuth2ClientContext().setAccessToken(null);
@@ -2659,7 +2819,7 @@ OAuth2RestTemplateの設定
 .. note::
 
     Spring Security OAuth以外のアーキテクチャで実装されている認可サーバでは、アクセストークンの削除をREST APIで受け付けていない場合がある。
-    
+
     その場合は認可サーバのアーキテクチャ仕様を確認し、適切に実装する必要がある。
 
 |
@@ -2680,7 +2840,7 @@ OAuth2RestTemplateの設定
     :header-rows: 1
     :stub-columns: 1
     :widths: 30 70
-    
+
     * - サーバ
       - 認可コードグラントからの変更点
     * - 認可サーバ
@@ -2690,7 +2850,7 @@ OAuth2RestTemplateの設定
     * - クライアント
       - \ :ref:`ImplementationOAuthClientServerOfAutorizationCode`\の全て
 
-| 
+|
 
 .. _ImplementationOAuthAuthorizationServerOfImplicit:
 
@@ -2713,12 +2873,10 @@ OAuth2RestTemplateの設定
 
         <oauth2:authorization-server
             client-details-service-ref="clientDetailsService"
-            token-endpoint-url="/oth2/token"
-            authorization-endpoint-url="/oth2/authorize"
             user-approval-handler-ref="userApprovalHandler"
             token-services-ref="tokenServices">
             <oauth2:implicit />  <!-- (1) -->
-            <oauth2:refresh-token /> 
+            <oauth2:refresh-token />
         </oauth2:authorization-server>
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -2736,7 +2894,7 @@ OAuth2RestTemplateの設定
 .. warning::
 
     \ ``<oauth2:implicit />``\ タグと\ ``<oauth2:refresh-token />``\ タグは上記の順番で設定する必要がある。
-    
+
     詳細は\ :ref:`OrderOfAuthoraizationServerSupportSetting`\を参照されたい。
 
 |
@@ -2759,8 +2917,6 @@ OAuth2RestTemplateの設定
 
 Spring Security OAuthではJava以外のライブラリを提供していないため、本ガイドラインではJavaScriptを用いて独自にクライアントを実装する方法について解説する。
 
-以下にJavaScript及びjspの実装例を示す。
-
 .. _OAuthClientUsingJavaScript:
 
 JavaScriptを使用したリソースサーバへのアクセス
@@ -2771,11 +2927,38 @@ JSON形式のデータを取得し、画面に表示させる方法を説明す�
 
 .. note::
 
-    以降に説明する実装例ではJavaScriptライブラリとしてjQueryを使用する。
-    jsファイルと合わせて \ ``src/main/webapp``\  配下に格納されていることを想定している。
+    以降に説明する実装例ではJavaScriptライブラリとしてjQuery(バージョン3.1.1)を使用する。
+    JQueryは\ ``src/main/webapp/resources/vendor``\に格納し、作成したJavaScriptファイルは、\ ``src/main/webapp/resources/app/js``\に格納する。
 
 
-まず、クライアントが利用するOAuth 2.0機能を独自に実装したAPIを作成する。実装例を以下に示す。
+
+.. note:: **アクセストークンの格納先**
+
+    HTML5準拠のブラウザを利用する場合、アクセストークンの格納先の代表的な例として、ローカルストレージとセッションストレージが挙げられる。
+
+    以下にローカルストレージとセッションストレージの保持期間、用途を示す。
+
+        .. tabularcolumns:: |p{0.15\linewidth}|p{0.20\linewidth}|p{0.65\linewidth}|
+        .. list-table::
+            :header-rows: 1
+            :stub-columns: 1
+            :widths: 15 20 65
+
+            * - 格納先
+              - 保持期間
+              - 用途
+            * - ローカルストレージ
+              - 明示的にクリアするまで
+              - 端末のブラウザを一人のユーザのみが利用する場合で、アクセストークンの発行回数を減らし、サービスの利便性を向上させたい場合
+            * - セッションストレージ
+              - タブやブラウザを閉じるまで
+              - 端末のブラウザを複数のユーザが共用で利用する場合で、アクセストークンの不正利用を防止し、セキュリティを強化したい場合
+
+    本実装例ではローカルストレージを採用する例を紹介する。
+
+|
+
+以下にOAuth 2.0機能を独自に実装したJavaScriptと、それを利用したクライアントの実装例を示す。
 
 * ``oauth2.js``
 
@@ -2783,18 +2966,18 @@ JSON形式のデータを取得し、画面に表示させる方法を説明す�
 
     var oauth2Func = (function(exp, $) {
         "use strict";
-    
+
         var
             config = {},
             DEFAULT_LIFETIME = 3600;
-    
+
         var uuid = function() {
             return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
                 var r = Math.random()*16|0, v = c == "x" ? r : (r&0x3|0x8);
                 return v.toString(16);
             });
         };
-    
+
         var encodeURL= function(url, params) {
             var res = url;
             var k, i = 0;
@@ -2803,11 +2986,11 @@ JSON形式のデータを取得し、画面に表示させる方法を説明す�
             }
             return res;
         };
-    
+
         var epoch = function() {
             return Math.round(new Date().getTime()/1000.0);
         };
-    
+
         var parseQueryString = function (qs) {
             var e,
                 a = /\+/g,
@@ -2815,24 +2998,24 @@ JSON形式のデータを取得し、画面に表示させる方法を説明す�
                 d = function (s) { return decodeURIComponent(s.replace(a, " ")); },
                 q = qs,
                 urlParams = {};
-    
+
             while (e = r.exec(q)) {
                urlParams[d(e[1])] = d(e[2]);
             }
-    
+
             return urlParams;
         };
-    
+
         var saveState = function(state, obj) {
             localStorage.setItem("state-" + state, JSON.stringify(obj));
         };
-    
+
         var getState = function(state) {
             var obj = JSON.parse(localStorage.getItem("state-" + state));
             localStorage.removeItem("state-" + state);
             return obj;
         };
-    
+
         var hasScope = function(token, scope) {
             if (!token.scopes) return false;
             var i;
@@ -2841,67 +3024,67 @@ JSON形式のデータを取得し、画面に表示させる方法を説明す�
             }
             return false;
         };
-    
+
         var filterTokens = function(tokens, scopes) { // (1)
             if (!scopes) scopes = [];
-    
+
             var i, j,
             result = [],
             now = epoch(),
             usethis;
             for(i = 0; i < tokens.length; i++) {
                 usethis = true;
-    
+
                 if (tokens[i].expires && tokens[i].expires < (now+1)) usethis = false;
-    
+
                 for(j = 0; j < scopes.length; j++) {
                     if (!hasScope(tokens[i], scopes[j])) usethis = false;
                 }
-    
+
                 if (usethis) result.push(tokens[i]);
             }
             return result;
         };
-    
-        var saveTokens = function(provider, tokens) {
-            localStorage.setItem("tokens-" + provider, JSON.stringify(tokens));
+
+        var saveTokens = function(providerId, tokens) {
+            localStorage.setItem("tokens-" + providerId, JSON.stringify(tokens));
         };
-    
-        var getTokens = function(provider) {
-            var tokens = JSON.parse(localStorage.getItem("tokens-" + provider));
+
+        var getTokens = function(providerId) {
+            var tokens = JSON.parse(localStorage.getItem("tokens-" + providerId));
             if (!tokens) tokens = [];
-    
+
             return tokens;
         };
-    
-        var wipeTokens = function(provider) {
-            localStorage.removeItem("tokens-" + provider);
+
+        var wipeTokens = function(providerId) {
+            localStorage.removeItem("tokens-" + providerId);
         };
-    
-        var saveToken = function(provider, token) {
-            var tokens = getTokens(provider);
+
+        var saveToken = function(providerId, token) { // (2)
+            var tokens = getTokens(providerId);
             tokens = filterTokens(tokens);
             tokens.push(token);
-            saveTokens(provider, tokens);
+            saveTokens(providerId, tokens);
         };
-    
-        var getToken = function(provider, scopes) {
-            var tokens = getTokens(provider);
+
+        var getToken = function(providerId, scopes) {
+            var tokens = getTokens(providerId);
             tokens = filterTokens(tokens, scopes);
             if (tokens.length < 1) return null;
             return tokens[0];
         };
-    
-        var sendAuthRequest = function(providerId, scopes) { // (2)
+
+        var sendAuthRequest = function(providerId, scopes) { // (3)
             if (!config[providerId]) throw "Could not find configuration for provider " + providerId;
             var co = config[providerId];
-    
+
             var state = uuid();
             var request = {
                 "response_type": "token"
             };
             request.state = state;
-    
+
             if (co["redirectUrl"]) {
                 request["redirect_uri"] = co["redirectUrl"];
             }
@@ -2911,9 +3094,9 @@ JSON形式のデータを取得し、画面に表示させる方法を説明す�
             if (scopes) {
                 request["scope"] = scopes.join(" ");
             }
-    
+
             var authurl = encodeURL(co.authorization, request);
-    
+
             if (window.location.hash) {
                 request["restoreHash"] = window.location.hash;
             }
@@ -2921,54 +3104,54 @@ JSON形式のデータを取得し、画面に表示させる方法を説明す�
             if (scopes) {
                 request["scopes"] = scopes;
             }
-    
+
             saveState(state, request);
             redirect(authurl);
-    
+
         };
-    
-        var checkForToken = function(providerId) { // (3)
+
+        var checkForToken = function(providerId) { // (4)
             var h = window.location.hash;
-    
+
             if (h.length < 2) return true;
-    
-            if (h.indexOf("error") > 0) { // (4)
+
+            if (h.indexOf("error") > 0) { // (5)
                 h = h.substring(1);
                 var errorinfo = parseQueryString(h);
                 handleError(providerId, errorinfo);
                 return false;
             }
-    
+
             if (h.indexOf("access_token") === -1) {
                 return true;
             }
             h = h.substring(1);
             var atoken = parseQueryString(h);
-    
+
             if (!atoken.state) {
                 return true;
             }
-    
+
             var state = getState(atoken.state);
             if (!state) throw "Could not retrieve state";
             if (!state.providerId) throw "Could not get providerId from state";
             if (!config[state.providerId]) throw "Could not retrieve config for this provider.";
-    
+
             var now = epoch();
             if (atoken["expires_in"]) {
                 atoken["expires"] = now + parseInt(atoken["expires_in"]);
             } else {
                 atoken["expires"] = now + DEFAULT_LIFETIME;
             }
-    
+
             if (atoken["scope"]) {
                 atoken["scopes"] = atoken["scope"].split(" ");
             } else if (state["scopes"]) {
                 atoken["scopes"] = state["scopes"];
             }
-    
+
             saveToken(state.providerId, atoken);
-    
+
             if (state.restoreHash) {
                 window.location.hash = state.restoreHash;
             } else {
@@ -2976,13 +3159,13 @@ JSON形式のデータを取得し、画面に表示させる方法を説明す�
             }
             return true;
         };
-    
-        var handleError = function(providerId, cause) { // (5)
+
+        var handleError = function(providerId, cause) { // (6)
             if (!config[providerId]) throw "Could not retrieve config for this provider.";
-    
+
             var co = config[providerId];
             var errorDetail = cause["error"];
-    
+
             // redirect error page
             if(co["errRedirectUrl"]) {
                 redirect(co["errRedirectUrl"] + "/" + errorDetail);
@@ -2990,12 +3173,12 @@ JSON形式のデータを取得し、画面に表示させる方法を説明す�
                 alert("Access Error. cause: " + errorDetail);
             }
         };
-    
-    
+
+
         var redirect = function(url) {
             window.location = url;
         };
-    
+
         var initialize = function(c) {
             config = c;
             try {
@@ -3010,30 +3193,35 @@ JSON形式のデータを取得し、画面に表示させる方法を説明す�
                 return false;
             }
         };
-    
-        var clearTokens = function() {
+
+        var clearTokens = function(config) { // (7)
             var key;
             for(key in config) {
                 wipeTokens(key);
             }
         };
-    
-        var oajax = function(settings) { // (6)
+
+        var oajax = function(settings) { // (8)
             var providerId = settings.providerId;
             var scopes = settings.scopes;
             var token = getToken(providerId, scopes);
-    
+
             if (!token) {
                 sendAuthRequest(providerId, scopes);
                 return;
             }
-    
+
             if (!settings.headers) settings.headers = {};
             settings.headers["Authorization"] = "Bearer " + token["access_token"];
-    
-            $.ajax(settings);
+
+            return $.ajax(settings);
         };
-    
+
+        var parseFailureJSON = function(data){ // (9)
+            var message = "message:" + data.responseJSON.error + " status:" + data.status;
+            return message;
+        };
+
         return {
             initialize: function(config) {
                 return initialize(config);
@@ -3043,9 +3231,12 @@ JSON形式のデータを取得し、画面に表示させる方法を説明す�
             },
             oajax: function(settings) {
                 return oajax(settings);
+            },
+            parseFailureJSON: function(data){
+                return parseFailureJSON(data);
             }
         };
-    
+
     })(window, jQuery);
 
 
@@ -3057,68 +3248,123 @@ JSON形式のデータを取得し、画面に表示させる方法を説明す�
     * - 項番
       - 説明
     * - | (1)
-      - | アクセストークンの有効期限とスコープの可否をチェックする関数。
-        | クライントが使用可能なアクセストークンを返却する。
+      - | クライアントが使用可能なアクセストークンを判別し返却する関数(\ ``filterTokens``\)。
+        | ローカルストレージに格納されているアクセストークンより、有効期限が超過しておらず、かつパラメータで指定されたスコープと一致するものを返却する。
+        | スコープが指定されていない場合は有効期限が超過していないアクセストークンを返却する。
     * - | (2)
-      - | 認可サーバに対して認可を要求する関数。
-        | コンフィギュレーション情報より必要パラメータを取得し、リクエストを作成する。
+      - | ローカルストレージにアクセストークンを格納する関数(\ ``saveToken``\)。
+        | 後述するコンフィギュレーション情報の\ ``providerId``\ を引数として受け取り、アクセストークンの配列をローカルストレージに格納する際のキーにする。
+        | アクセストークンの配列は\ ``filterTokens``\ から得たアクセストークンに、引数の\ ``token``\を加えたものである。
     * - | (3)
-      - | 認可の応答よりアクセストークンを取得する関数。
-        | アクセストークンが取得できた場合、ローカルストレージに情報を格納する。
+      - | 認可サーバに対して認可を要求する関数(\ ``sendAuthRequest``\)。
+        | コンフィギュレーション情報より必要パラメータを取得し、リクエストを作成する。
     * - | (4)
-      - | 認可の結果、エラーが返却された場合エラー処理として\ ``handleError``\ を呼び出す。
+      - | 認可の応答よりアクセストークンを取得する関数(\ ``checkForToken``\)。
+        | URLのハッシュで返却される認可の応答を検証し、正常である場合は\ ``saveToken``\ を用いてローカルストレージに情報を格納する。
     * - | (5)
-      - | 認可時のエラーを処理する関数。
+      - | 認可の結果、エラーが返却された場合エラー処理として\ ``handleError``\ を呼び出す。
+    * - | (6)
+      - | 認可時のエラーを処理する関数(\ ``handleError``\)。
         | 本ガイドラインでは、エラー処理の実装例としてコンフィギュレーション情報にて指定されている
           エラー時のリダイレクト先URLへのリダイレクトを行っている。
-    * - | (6)
-      - | リソースサーバに対してリソースへのアクセスを要求する関数。
-        | ローカルストレージよりアクセストークンを取得し、jQueryのajax関数を用いてリソースサーバへリクエストを行う。
+    * - | (7)
+      - | ローカルストレージに格納されているアクセストークンをクリアする関数(\ ``clearTokens``\)。
+    * - | (8)
+      - | リソースサーバに対してリソースへのアクセスを要求する関数(\ ``oajax``\)。
+        | ローカルストレージよりアクセストークンを取得し、jQueryの\ ``ajax``\関数を用いてリソースサーバへリクエストを行う。
+    * - | (9)
+      - | \ ``ajax``\関数でエラーが発生した場合に返却されるJSONをパースして文字列に変換する関数(\ ``parseFailureJSON``\)。
+        | \ ``ajax``\関数から返却されるJSONは、JSONをネストしているためキー名をドットでつないで情報を参照する。
+        | 本ガイドラインではJSONのパラメータのうち、Spring Security OAuthが定めるエラーの種類とHTTPステータスコードを表示する例を示す。
+        | 例えば、無効なアクセストークンを使用した場合に返却されるJSONは\ ``message:invalid_token status:401``\という文字列に変換される。
 
 |
 
-次に、前述したAPIを利用してリソースへのアクセスを行うクライアントを実装する。
+
+クライアントの画面を表示するコントローラの実装例を示す。
+アクセスする認可サーバやリソースサーバのURLを可変とするため、コントローラでプロパティや環境変数からURLを取得し、画面に連携する。
+
+* ``TodoController.java``
+
+.. code-block:: java
+
+    @Controller
+    public class TodoListController {
+
+        @Value("${client.serverUrl}") // (1)
+        String applicationContextUrl;
+
+        @Value("${auth.serverUrl}") // (2)
+        String authServerUrl;
+
+        @Value("${resource.serverUrl}") // (3)
+        String resourceServerUrl;
+
+        @RequestMapping(value = "todo/get", method = RequestMethod.GET)
+        public String getTodo(Model model) {
+            model.addAttribute("client.serverUrl", applicationContextUr);
+            model.addAttribute("auth.serverUrl", authServerUrl);
+            model.addAttribute("resource.serverUrl", resourceServerUrl);
+            return "todo/todoList";
+        }
+
+    }
+
+|
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | クライアントのルートパスを取得する。
+    * - | (2)
+      - | 認可サーバのルートパスを取得する。
+    * - | (3)
+      - | リソースサーバのルートパスを取得する。
+
+|
+
+クライアントの画面（JSP）の実装例を示す。
+JSPでは、前述の独自に実装したJavaScriptを利用して、認可サーバやリソースサーバにアクセスする。
 
 * ``todoList.jsp``
 
 .. code-block:: jsp
 
     <script type="text/javascript" src="${pageContext.request.contextPath}/resources/vendor/jquery/jquery.js"></script> <!-- (1) -->
-    <script type="text/javascript" src="${pageContext.request.contextPath}/resources/app/js/oth2-implicit.js"></script> <!-- (1) -->
+    <script type="text/javascript" src="${pageContext.request.contextPath}/resources/app/js/oauth2.js"></script> <!-- (1) -->
     <script type="text/javascript">
     "use strict";
-    
+
     $(document).ready(function() {
         var result = oauth2Func.initialize({ // (2)
             "todo" : { // (3)
                 clientId : "client", // (4)
-                redirectUrl : "${client.serverUrl}/oth2/api", // (5)
-                errRedirectUrl : "${client.serverUrl}/oth2/error", // (6)
-                authorization : "${auth.serverUrl}/oth2/authorize" // (7)
+                redirectUrl : "${client.serverUrl}/todo/get", // (5)
+                errRedirectUrl : "${client.serverUrl}/oauth/error", // (6)
+                authorization : "${auth.serverUrl}/oauth/authorize" // (7)
             }
         });
-    
+
         if (result) {
             oauth2Func.oajax({ // (8)
                 url : "${resource.serverUrl}/api/v1/todos", // (9)
                 providerId : "todo",  // (10)
                 scopes : [ "READ" ],  // (11)
                 dataType : "json",    // (12)
-                type : "GET",  // (13)
-                success : function(data) { // (14)
-                    $("#message").text(JSON.stringify(data));
-                },
-                error : function() {
-                    oauth2Func.clearTokens();
-                }
+                type : "GET"  // (13)
+            }).done(function(data) {  // (14)
+                $("#message").text(JSON.stringify(data));
+            }).fail(function(data) {  // (15)
+                $("#message").text(oauth2Func.parseFailureJSON(data));
             });
-        } else {
-            oauth2Func.clearTokens(); // (15)
         }
-    
-    
-    };
-    
+    });
+
     </script>
     <div id="wrapper">
         <p id="message"></p>
@@ -3129,12 +3375,11 @@ JSON形式のデータを取得し、画面に表示させる方法を説明す�
 .. list-table::
     :header-rows: 1
     :widths: 10 90
-    :class: longtable
 
     * - 項番
       - 説明
     * - | (1)
-      - | 後述する、OAuth 2.0機能を独自に実装したjsファイル、jQueryをそれぞれ格納したパスを指定する。
+      - | 前述の、jQuery、独自に実装したJavaScriptをそれぞれ格納したパスを指定する。
     * - | (2)
       - | 認可要求に使用するコンフィギュレーション情報を定義し、初期化する。
     * - | (3)
@@ -3144,15 +3389,12 @@ JSON形式のデータを取得し、画面に表示させる方法を説明す�
       - | クライアントを識別するIDを指定する。
     * - | (5)
       - | 認可サーバのリソースオーナ認証後にクライアントをリダイレクトさせるURLを指定する。
-        | 本実装例ではURLのパラメータをControllerから受け取ることを想定している。
     * - | (6)
       - | 認可応答として認可サーバよりエラーを受信した場合にリダイレクトさせるURLを指定する。
-        | 本実装例ではURLのパラメータをControllerから受け取ることを想定している。
         | 本ガイドラインではエラー受信時の実装例として、クライアントの画面にリダイレクトしエラー画面を
-          表示させる方法を示す。なお、クライアントのControllerについては説明を割愛する。
+          表示させる方法を示す。
     * - | (7)
       - | 認可サーバの認可エンドポイントURLを指定する。
-        | 本実装例ではURLのパラメータをControllerから受け取ることを想定している。
     * - | (8)
       - | リソースへのアクセスを実行する。
     * - | (9)
@@ -3160,15 +3402,29 @@ JSON形式のデータを取得し、画面に表示させる方法を説明す�
     * - | (10)
       - | 参照するコンフィギュレーション情報の識別子を指定する。
     * - | (11)
-      - | リソースへ要求するスコープを指定する。設定値は大文字、小文字を区別する。
+      - | 認可を要求するスコープを指定する。設定値は大文字、小文字を区別する。
     * - | (12)
-      - | レスポンスの型を指定する。
+      - | レスポンス形式を指定する。
     * - | (13)
       - | メソッドGETでリソースサーバへアクセスする。
     * - | (14)
       - | 処理成功時に行う処理を指定する。\ ``message``\には処理成功時のレスポンスが格納される。
+        | 本ガイドラインではレスポンスをそのまま出力している。
     * - | (15)
-      - | アクセストークンをクリアする。
+      - | 処理失敗時に行う処理を指定する。\ ``message``\には\ ``parseFailureJSON``\関数の返り値が格納される。
+
+|
+
+
+.. warning::
+
+    本実装例ではローカルストレージにアクセストークンを格納する際のキーとして固定の値を使用している。
+
+    本実装例のようにローカルストレージに固定のキーで情報を格納すると、同一端末のブラウザを複数のユーザが利用する場合に、
+    あるユーザが格納した情報が別のユーザに意図せず参照されてしまう可能性がある。
+
+    同一端末のブラウザを複数のユーザが利用することが想定される場合は、セッションストレージを採用し、
+    ユーザごとにユニークなキーで格納するなど、意図しない不正利用が起こらない仕組みを実装する必要がある。
 
 |
 
@@ -3188,6 +3444,57 @@ JSON形式のデータを取得し、画面に表示させる方法を説明す�
 
 |
 
+
+トークンの取り消し(クライアントサーバ)
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+発行したアクセストークンの取り消しについて説明する。
+
+認可サーバからアクセストークンを削除する方法については\ :ref:`OAuthAuthorizationServerHowToCancelToken`\を参照されたい。
+
+クライアントではアクセストークンが不要になったタイミングで\ ``oauth2.js``\の\ ``clearTokens``\を呼び出すことでローカルストレージに格納したアクセストークンを削除できる。
+
+以下に実装例を示す。
+
+.. code-block:: js
+
+    $(document).ready(function() {
+        oauth2Func.clearTokens({ // (1)
+            "todo" : {} // (2)
+        });
+    });
+
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | ローカルストレージからアクセストークンを削除する\ ``clearTokens``\関数を呼び出す。
+    * - | (2)
+      - | アクセストークンを参照するキーとして\ ``initialize``\で設定した一意な値と同じ値を設定する。
+
+|
+
+.. warning::
+
+    ローカルストレージからアクセストークンを削除しても、\ :ref:`OAuthAuthorizationServerHowToCancelToken`\で説明しているように、リソースオーナに対する認可の要求を行わずにアクセストークンを再取得できるケースがある。
+    クライアントからアクセストークンを削除するだけではセキュリティ面での対処としては不十分であることに注意されたい。
+
+|
+
+.. warning::
+
+    アクセストークンの削除を行うタイミングによっては、ブラウザの終了などでJavaScriptが実行されない場合がある。
+    セキュリティ要件上アクセストークンを削除する必要がある場合は、ユーザがブラウザを終了してしまうことも考慮し、
+    ユースケース上必ず実行されるポイントでアクセストークンの削除を行う必要があることに注意されたい。
+
+|
+
+
 .. _ImplementationResourceOwnerPasswordCredentialsGrant:
 
 リソースオーナパスワードクレデンシャルグラントの実装
@@ -3204,7 +3511,7 @@ JSON形式のデータを取得し、画面に表示させる方法を説明す�
     :header-rows: 1
     :stub-columns: 1
     :widths: 30 70
-    
+
     * - サーバ
       - 認可コードグラントからの変更点
     * - 認可サーバ
@@ -3216,7 +3523,7 @@ JSON形式のデータを取得し、画面に表示させる方法を説明す�
     * - クライアント
       - \ :ref:`OAuth2RestTemplateSettings`\
 
-| 
+|
 
 .. _ImplementationOAuthAuthorizationServerOfPassword:
 
@@ -3239,11 +3546,9 @@ JSON形式のデータを取得し、画面に表示させる方法を説明す�
 
         <oauth2:authorization-server
             client-details-service-ref="clientDetailsService"
-            token-endpoint-url="/oth2/token"
-            authorization-endpoint-url="/oth2/authorize"
             user-approval-handler-ref="userApprovalHandler"
             token-services-ref="tokenServices">
-            <oauth2:refresh-token /> 
+            <oauth2:refresh-token />
             <oauth2:password />  <!-- (1) -->
         </oauth2:authorization-server>
 
@@ -3262,7 +3567,7 @@ JSON形式のデータを取得し、画面に表示させる方法を説明す�
 .. warning::
 
     \ ``<oauth2:password />``\ タグと\ ``<oauth2:refresh-token />``\ タグは上記の順番で設定する必要がある。
-    
+
     詳細は\ :ref:`OrderOfAuthoraizationServerSupportSetting`\を参照されたい。
 
 |
@@ -3292,18 +3597,18 @@ JSON形式のデータを取得し、画面に表示させる方法を説明す�
     @Service
     @Transactional
     public class RevokeTokenServiceImpl implements RevokeTokenService {
-        
+
         @Inject
         ConsumerTokenServices consumerService;
-        
+
         @Inject
         TokenStore tokenStore;
-        
+
         @Inject
         ApprovalStore approvalStore;
-        
+
         public String revokeToken(String tokenValue, String clientId){
-        
+
             OAuth2Authentication authentication = tokenStore.readAuthentication(tokenValue);
             if (authentication != null) {
                 if (clientId.equals(authentication.getOAuth2Request().getClientId())) {
@@ -3318,7 +3623,7 @@ JSON形式のデータを取得し、画面に表示させる方法を説明す�
                     } */
                     consumerService.revokeToken(tokenValue);
                     return "success";
-                    
+
                 } else {
                     return "invalid client";
                 }
@@ -3373,7 +3678,7 @@ OAuth2RestTemplateの設定
         <aop:scoped-proxy>
         <property name="clientId" value="firstSec" />
         <property name="clientSecret" value="firstSecSecret" />
-        <property name="accessTokenUri" value="${auth.serverUrl}/oth2/token" />
+        <property name="accessTokenUri" value="${auth.serverUrl}/oauth/token" />
         <property name="scope" value="READ,WRITE" />
     </bean> <!-- (1) -->
 
@@ -3419,7 +3724,7 @@ OAuth2RestTemplateの設定
          * - | \ ``clientSecret``\プロパティ
            - | Beanの\ ``clientSecrett``\に対して認可サーバにてクライアントの認証に用いるパスワードを設定する。
          * - | \ ``accessTokenUri``\プロパティ
-           - | アクセストークンの発行を依頼するための認可サーバのエンドポイントのURLを指定する。
+           - | アクセストークンの発行を依頼するための認可サーバのエンドポイントURLを指定する。
          * - | \ ``scope``\プロパティ
            - | Beanの\ ``scope``\に対して認可を要求するスコープの一覧を設定する。
 
@@ -3464,7 +3769,7 @@ OAuth2RestTemplateの設定
     :header-rows: 1
     :stub-columns: 1
     :widths: 30 70
-    
+
     * - サーバ
       - 認可コードグラントからの変更点
     * - 認可サーバ
@@ -3476,7 +3781,7 @@ OAuth2RestTemplateの設定
     * - クライアント
       - \ :ref:`OAuth2RestTemplateSettings`\
 
-| 
+|
 
 .. _ImplementationOAuthAuthorizationServerOfClientCredentials:
 
@@ -3499,9 +3804,7 @@ OAuth2RestTemplateの設定
 
         <oauth2:authorization-server
             client-details-service-ref="clientDetailsService"
-            token-endpoint-url="/oth2/token"
-            authorization-endpoint-url="/oth2/authorize"
-            user-approval-handler-ref="userApprovalHandler"
+            token-endpoint-url="/oauth/token"
             token-services-ref="tokenServices">
             <oauth2:refresh-token />
             <oauth2:client-credentials />  <!-- (1) -->
@@ -3522,7 +3825,7 @@ OAuth2RestTemplateの設定
 .. warning::
 
     \ ``<oauth2:client-credentials />``\ タグと\ ``<oauth2:refresh-token />``\ タグは上記の順番で設定する必要がある。
-    
+
     詳細は\ :ref:`OrderOfAuthoraizationServerSupportSetting`\を参照されたい。
 
 |
@@ -3552,18 +3855,18 @@ OAuth2RestTemplateの設定
     @Service
     @Transactional
     public class RevokeTokenServiceImpl implements RevokeTokenService {
-        
+
         @Inject
         ConsumerTokenServices consumerService;
-        
+
         @Inject
         TokenStore tokenStore;
-        
+
         @Inject
         ApprovalStore approvalStore;
-        
+
         public String revokeToken(String tokenValue, String clientId){
-        
+
             OAuth2Authentication authentication = tokenStore.readAuthentication(tokenValue);
             if (authentication != null) {
                 if (clientId.equals(authentication.getOAuth2Request().getClientId())) {
@@ -3578,7 +3881,7 @@ OAuth2RestTemplateの設定
                     } */
                     consumerService.revokeToken(tokenValue);
                     return "success";
-                    
+
                 } else {
                     return "invalid client";
                 }
@@ -3606,7 +3909,7 @@ OAuth2RestTemplateの設定
 
 このため認可コードグラントでの実装のように、Controllerクラスの引数として\ ``@AuthenticationPrincipal``\ アノテーションを付与した\ ``UserDetails``\ や\ ``OAuth2Authentication``\ を指定してもリソースオーナの情報を受け取ることはできない。
 
-代わりに、クライアントの情報を保持しているため、Controllerのメソッド引数に\ ``String``\ を指定し\ ``@AuthenticationPrincipal``\ アノテーションを付与することによりクライアントIDを取得することができる。
+代わりに、クライアント情報を保持しているため、Controllerのメソッド引数に\ ``String``\ を指定し\ ``@AuthenticationPrincipal``\ アノテーションを付与することによりクライアントIDを取得することができる。
 
 認可コードグラントからの変更点を以下に示す。
 
@@ -3615,15 +3918,15 @@ OAuth2RestTemplateの設定
     @RestController
     @RequestMapping("api")
     public class TodoRestController {
-        
+
         // omitted
 
         @RequestMapping(value = "todos", method = RequestMethod.GET)
         @ResponseStatus(HttpStatus.OK)
         public Collection<Todo> list(@AuthenticationPrincipal String clientId) { // (1)
-        
+
             // omitted
-        
+
         }
     }
 
@@ -3637,7 +3940,7 @@ OAuth2RestTemplateの設定
     * - | (1)
       - | \ 引数 \ ``clientId``\にクライアントIDが格納される。
 
-| 
+|
 
 .. _ImplementationOAuthClientServerOfClientCredentials:
 
@@ -3660,7 +3963,7 @@ OAuth2RestTemplateの設定
     <oauth2:resource id="todoClientGrantResource" client-id="firstSecClient"
                     client-secret="firstSecSecret"
                     type="client_credentials"
-                    access-token-uri="${auth.serverUrl}/oth2/token" /> <!-- (1) -->
+                    access-token-uri="${auth.serverUrl}/oauth/token" /> <!-- (1) -->
 
     <oauth2:rest-template resource=id="todoClientGrantResourceRestTemplate" resource="todoClientGrantResource" />
 
@@ -3729,9 +4032,7 @@ How to extend
 
 .. code-block:: xml
 
-        <oauth2:authorization-server
-             token-endpoint-url="/oth2/token"
-             authorization-endpoint-url="/oth2/authorize" >
+        <oauth2:authorization-server>
             <oauth2:authorization-code />  <!-- (1) -->
             <oauth2:refresh-token />  <!-- (2) -->
             <oauth2:password />  <!-- (3) -->
@@ -3760,6 +4061,9 @@ How to extend
 チェックトークンエンドポイントは、リソースサーバからアクセストークンの値を受け取り、リソースサーバの代わりにトークンの検証を行うエンドポイントである。
 チェックトークンエンドポイントは\ ``TokenServices``\を用いてアクセストークンの取得、検証を行い、検証に問題がなければアクセストークンに紐づく情報をリソースサーバに渡す。
 
+なお、チェックトークンエンドポイントはRFCに定義されていないSpring Security OAuth独自の機能であるが、
+本ガイドラインでは、RFCに定義されている他のエンドポイントと同様の形式でレスポンスを行うように設定する。
+
 
 .. _OAuthAuthorizationServerHowToCooperateWithHttp:
 
@@ -3773,22 +4077,22 @@ HTTPアクセスを介した連携
 
 以下に、実装例を示す。
 
+認可サーバの設定
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 まず、認可サーバにトークンを検証するための\ ``org.springframework.security.oauth2.provider.endpoint.CheckTokenEndpoint``\ クラスをコンポーネントとして登録する設定を行う。
 
 * ``oauth2-auth.xml``
 
 .. code-block:: xml
 
-        <sec:http pattern="/oth2/check-token" security="none" />  <!-- (1) -->
+        <sec:http pattern="/oauth/check_token" security="none" />  <!-- (1) -->
 
         <oauth2:authorization-server
              client-details-service-ref="clientDetailsService"
-             token-endpoint-url="/oth2/token"
-             authorization-endpoint-url="/oth2/authorize"
              user-approval-handler-ref="userApprovalHandler"
              token-services-ref="tokenServices"
-             check-token-enabled="true"
-             check-token-endpoint-url="/oth2/check-token">  <!-- (2) -->
+             check-token-enabled="true">  <!-- (2) -->
             <oauth2:authorization-code />
             <oauth2:implicit />
             <oauth2:refresh-token />
@@ -3805,25 +4109,14 @@ HTTPアクセスを介した連携
     * - 項番
       - 説明
     * - | (1)
-      - | 本ガイドラインでは、チェックトークンエンドポイントへのアクセスはリソースサーバのみ許可するネットワーク構成になっていることを前提とし、Spring Securityのセキュリティ機能(Security Filter)の適用対象外とする。
-        | 他のセキュリティ設定よりも先に評価されるように、設定ファイルの先頭に記載する必要がある。
-    * - | (2)
       - | \ ``<oauth2:authorization-server>タグ``\ の\ ``check-token-enabled``\ 属性に\ ``true``\ を指定することで\ ``CheckTokenEndpoint``\ がコンポーネントとして登録される。
-        | \ ``<oauth2:authorization-server>タグ``\ の\ ``check-token-endpoint-url``\ 属性に\ ``CheckTokenEndpoint``\ のURLを指定する。指定しない場合はデフォルト値である “/oauth/check_token” が指定される。
+        | チェックトークンエンドポイントとして、 "/oauth/check_token"が設定される。
 
 
 .. warning:: **チェックトークンエンドポイントのセキュリティ対策**
 
-  - チェックトークンエンドポイントは、認可サーバとリソースサーバ間のみアクセス可能とし、オープンなネットワークからアクセスできないようにする。
-    チェックトークンエンドポイントを公開する場合は、適切なセキュリティ対策を行う必要がある。
-
-
-.. note::
-
-    Spring Security OAuthのバージョン2.0.12以前を使用する場合、\ ``check-token-endpoint-url``\ は、\ ``authorization-endpoint-url``\ または\ ``token-endpoint-url``\ を指定していない場合は反映されないため注意が必要である。
-    これは以下のissueで取り上げられており、バージョン2.0.13で改修される予定である。
-    
-    https://github.com/spring-projects/spring-security-oauth/issues/897
+    認可サーバのチェックトークンエンドポイントは、リソースサーバのみアクセス可能とし、リソースサーバ以外が利用できないように制限する必要がある。
+    本ガイドラインではチェックトークンエンドポイントに対してBasic認証にてアクセス制限を行っているが、可能であればネットワークにて特定URLに対するIP制限など、より上位のアクセス制限を行うことを推奨する。
 
 
 .. note::
@@ -3831,7 +4124,10 @@ HTTPアクセスを介した連携
     \ ``TokenServices``\ は、共有DBを介して連携させる場合と同様に\ ``DefaultTokenServices``\ を使用する。
     \ ``TokenServices``\が参照する\ ``TokenStore``\はアプリケーションの要件に合ったインタフェースの実装クラスを使用する。
 
-| 
+|
+
+リソースサーバの設定
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 リソースサーバの設定ファイルに\ ``TokenServices``\ として\ ``org.springframework.security.oauth2.provider.token.RemoteTokenServices``\ を使用する設定を行う。
 
@@ -3841,7 +4137,7 @@ HTTPアクセスを介した連携
 
         <bean id="tokenServices"
             class="org.springframework.security.oauth2.provider.token.RemoteTokenServices">
-            <property name="checkTokenEndpointUrl" value="${auth.serverUrl}/oth2/check-token" />  <!-- (1) -->
+            <property name="checkTokenEndpointUrl" value="${auth.serverUrl}/oauth/check_token" />  <!-- (1) -->
         </bean>
 
 
@@ -3855,16 +4151,27 @@ HTTPアクセスを介した連携
     * - | (1)
       - | 認可サーバのチェックトークンエンドポイントにアクセスしてアクセストークンに紐付く情報を取得できるよう、\ ``RemoteTokenServices``\ をBean定義する。
         | チェックトークンエンドポイントにアクセスするためのURLを\ ``checkTokenEndpointUrl``\ プロパティに設定する。
+    * - | (2)
+      - | \ ``clientId``\ プロパティに、認可サーバにてリソースサーバを識別するIDを設定する。
+        | 設定したIDはチェックトークンエンドポイントにアクセスする際にBasic認証のユーザ名として使用される。
+        | 設定するクライアントIDは、認可サーバのクライアント情報に登録しておく必要がある。クライアント情報の登録については\ :ref:`OAuthAuthorizationServerClientAuthentication`\ を参照されたい。
+    * - | (3)
+      - | \ ``clientSecret``\ プロパティに、認可サーバにてリソースサーバの認証に用いるパスワードを設定する。
+        | 設定したパスワードは、チェックトークンエンドポイントにアクセスする際にBasic認証のパスワードとして使用される。
+        | 設定するパスワードは、認可サーバのクライアント情報に登録されているパスワードと一致する必要がある。
+
+|
 
 
 .. note::
 
     チェックトークンエンドポイントでアクセストークンの検証エラーが発生した場合、\ ``RemoteTokenServices``\ にHTTPステータスコード400(Bad Request)が返却される。
-    \ ``RestTemplate``\ のデフォルト実装ではHTTPステータスコード400(Bad Request)が返却された場合、エラーハンドリングを行いクライアントエラー例外を発生させる。
+    \ ``RestTemplate``\ のデフォルト実装ではHTTPステータスコード400(Bad Request)が返却された場合、エラーハンドリングを行い\ ``HttpClientErrorException``\ を発生させる。
     \ ``RemoteTokenServices``\ がデフォルトで使用する\ ``RestTemplate``\ はアクセストークンの検証エラーをクライアントサーバに連携するために、レスポンスのHTTPステータスコードが400の場合はエラーハンドリングしないよう拡張されている。
     \ ``RemoteTokenServices``\ に\ ``RestTemplate``\ をインジェクションした場合、この拡張が適用されなくなるため注意が必要である。
 
-| 
+|
+
 
 \ ``RemoteTokenServices``\ をリソースサーバで使用した場合、ハンドラメソッドでアノテーション\ ``@AuthenticationPrincipal``\ を\ ``String``\ に引数アノテーションとして指定することでリソースオーナのユーザ名が取得できる。
 
@@ -3875,15 +4182,15 @@ HTTPアクセスを介した連携
     @RestController
     @RequestMapping("api")
     public class TodoRestController {
-        
+
         // omitted
 
         @RequestMapping(value = "todos", method = RequestMethod.GET)
         @ResponseStatus(HttpStatus.OK)
         public Collection<Todo> list(@AuthenticationPrincipal String userName) { // (1)
-        
+
             // omitted
-        
+
         }
     }
 
@@ -3898,7 +4205,7 @@ HTTPアクセスを介した連携
       - | \ 引数 \ ``userName``\にリソースオーナのユーザ名が格納される。
 
 
-| 
+|
 
 .. _OAuthAuthorizationServerHowToGetOtherThanUserName:
 
@@ -3939,7 +4246,7 @@ DefaultAccessTokenConverterとは
                 Authentication authentication) {
             Map<String, Object> response = new LinkedHashMap<String, Object>();
             response.put(USERNAME, authentication.getName());
-            
+
             if (authentication.getAuthorities() != null &&
                     !authentication.getAuthorities().isEmpty()) {
                 response.put(AUTHORITIES, AuthorityUtils.authorityListToSet(
@@ -3969,15 +4276,15 @@ DefaultAccessTokenConverterとは
 .. code-block:: java
 
         public class CustomAccessTokenConverter extends DefaultAccessTokenConverter {
-        
+
             @Override
             public Map<String, ?> convertAccessToken(OAuth2AccessToken token, OAuth2Authentication authentication) {
-                
+
                 @SuppressWarnings("unchecked")
                 Map<String, Object> response = (Map<String, Object>) super.convertAccessToken(token, authentication);
                 response.put("client_additional_key","client_additional_value"); // (1)
                 // omitted
-                
+
                 return response;
             }
         }
@@ -4001,11 +4308,8 @@ DefaultAccessTokenConverterとは
 
         <oauth2:authorization-server
              client-details-service-ref="clientDetailsService"
-             token-endpoint-url="/oth2/token"
-             authorization-endpoint-url="/oth2/authorize"
              user-approval-handler-ref="userApprovalHandler"
-             token-services-ref="tokenServices"
-             check-token-endpoint-url="/oth2/check-token">  <!-- (1) -->
+             token-services-ref="tokenServices">  <!-- (1) -->
             <oauth2:authorization-code />
             <oauth2:implicit />
             <oauth2:refresh-token />
@@ -4036,8 +4340,8 @@ DefaultAccessTokenConverterとは
     * - 項番
       - 説明
     * - | (1)
-      - | \ ``<oauth2:authorization-server>タグ``\ の\ ``check-token-endpoint-url``\ 属性に(2)で定義している\ ``CheckTokenEndpoint``\ のURLを指定する。指定しない場合はデフォルト値である “/oauth/check_token” が指定される。
-        | \ ``CheckTokenEndpoint``\ のBean定義を(2)で独自で行っているため、\ ``<oauth2:authorization-server>タグ``\ の\ ``check-token-enabled``\ 属性は指定しない。          
+      - | \ ``CheckTokenEndpoint``\ のBean定義を(2)で独自で行っているため、\ ``<oauth2:authorization-server>タグ``\ の\ ``check-token-enabled``\ 属性は指定しない。
+        | トークンチェックエンドポイントとして、"/oauth/check_token"が設定される。
     * - | (2)
       - | \ ``CheckTokenEndpoint``\ をBean定義する。
         | \ ``accessTokenConverter``\ プロパティに(2)で定義している\ ``CustomAccessTokenConverter``\ のBeanを指定することで\ ``CustomAccessTokenConverter``\ と\ ``CustomUserTokenConverter``\ に追加した独自項目をリソースサーバに連携するようになる。
@@ -4057,24 +4361,24 @@ DefaultAccessTokenConverterとは
 .. code-block:: java
 
         public class OauthUser implements Serializable{
-        
+
             private static final long serialVersionUID = 1L;
-            
+
             private String username;
-            
+
             private String userAdditionalValue;
-            
+
             private String clientAdditionalValue;
-            
+
             // omitted
-            
+
             public User(String username, String additionalValue){
                 this.username = username;
                 this.additionalValue = additionalValue;
             }
-            
+
             // Getters and Setters are omitted
-            
+
         }
 
 アノテーション\ ``@AuthenticationPrincipal``\ でユーザ情報が取得できるように設定を行う\ ``org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter``\ を拡張し、ユーザ名以外の情報も取得できるよう機能の追加を行う。
@@ -4084,14 +4388,14 @@ DefaultAccessTokenConverterとは
 .. code-block:: java
 
         public class CustomUserTokenConverter extends DefaultUserAuthenticationConverter{
-            
+
             private Collection<? extends GrantedAuthority> defaultAuthorities; // (1)
-            
+
             public void setDefaultAuthorities(String[] defaultAuthorities) {
                 this.defaultAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList(StringUtils
                         .arrayToCommaDelimitedString(defaultAuthorities));
             }
-            
+
              // (2)
             @Override
             public Authentication extractAuthentication(Map<String, ?> map) {
@@ -4102,14 +4406,14 @@ DefaultAccessTokenConverterとは
                             (String) map.get("user_additional_key"),
                             (String) map.get("client_additional_key"),
                             (String) map.get("client_id")); // (3)
-                    
+
                     // omitted
-                    
+
                     return new UsernamePasswordAuthenticationToken(user, "N/A", authorities); // (4)
                 }
                 return null;
             }
-            
+
             private Collection<? extends GrantedAuthority> getAuthorities(Map<String, ?> map) {
                 if (!map.containsKey(AUTHORITIES)) {
                     return defaultAuthorities;
@@ -4152,10 +4456,10 @@ DefaultAccessTokenConverterとは
 
         <bean id="tokenServices"
             class="org.springframework.security.oauth2.provider.token.RemoteTokenServices">
-            <property name="checkTokenEndpointUrl" value="${auth.serverUrl}/oth2/check-token" />
+            <property name="checkTokenEndpointUrl" value="${auth.serverUrl}/oauth/check_token" />
             <property name="accessTokenConverter" ref="accessTokenConverter" />
         </bean>
-        
+
         <bean id="accessTokenConverter"
             class="org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter">
             <property name="userTokenConverter">
@@ -4175,3 +4479,180 @@ DefaultAccessTokenConverterとは
       - | \ ``accessTokenConverter``\ の\ ``userTokenConverter``\ プロパティに\ ``CustomUserTokenConverter``\ クラスを指定することで、ユーザ名以外の情報をアノテーション\ ``@AuthenticationPrincipal``\ で取得できるようになる。
 
 
+認可サーバにおけるパスのカスタマイズ
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+認可サーバではエンドポイントと、特定の状況が起きたときのフォワード先についてパスを変更することができる。
+本節では、認可サーバにおけるパス、および関連箇所の設定変更方法を説明する。
+
+.. _CustomizableUrl:
+
+カスタマイズ可能なパス
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+How to useにて説明したとおり、認可サーバでは\ ``<oauth2:authorization-server>``\タグによる定義を行うことで、
+RFCに準拠したエンドポイントや、認可サーバ内でフォワードされたリクエストを処理するためのControllerがコンポーネントとして登録される。
+また、認可サーバがクライアントやリソースサーバに公開するエンドポイントは、<oauth2:authorization-server>タグの
+属性値を変更することにより、カスタマイズが可能である。
+
+以下に、コンポーネントとして登録されるエンドポイント、およびフォワード先のデフォルトパスと、
+エンドポイントのカスタマイズ時に変更する<oauth2:authorization-server>タグの属性値を示す。
+
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.20\linewidth}|p{0.60\linewidth}|
+.. list-table:: **エンドポイント**
+    :header-rows: 1
+    :widths: 20 20 20 40
+
+    * - 名前
+      - 属性値
+      - デフォルトパス
+      - 説明
+    * - | 認可エンドポイント
+      - | \ ``authorization-endpoint-url``\
+      - | \ ``/oauth/authorized``\
+      - | クライアントがリソースオーナから認可を得るために利用するエンドポイント。
+    * - | トークンエンドポイント
+      - | \ ``token-endpoint-url``\
+      - | \ ``/oauth/token``\
+      - | クライアントがアクセストークンを発行するために利用するエンドポイント。
+    * - | チェックトークンエンドポイント
+        | (\ :ref:`OAuthAuthorizationServerHowToCooperateWithHttp`\ の実装を行っている場合のみ設定する。)
+      - | \ ``check-token-endpoint-url``\
+      - | \ ``/oauth/check_token``\
+      - | リソースサーバがアクセストークンを検証するために利用するエンドポイント。
+        | HTTPアクセスを介してアクセストークンの連携を行う場合に利用する。なお、本エンドポイントは、
+        | RFCの定めるエンドポイントではなく、Spring Security OAuthが独自に拡張したエンドポイントである。
+
+|
+
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.20\linewidth}|p{0.60\linewidth}|
+.. list-table:: **フォワード先**
+    :header-rows: 1
+    :widths: 20 20 20 40
+
+    * - 名前
+      - 属性値
+      - デフォルトパス
+      - 説明
+    * - | 認可取得時のフォワード先
+      - | \ ``user-approval-page``\
+      - | \ ``/oauth/confirm_access``\
+      - | リソースオーナに認可画面を返却するために利用するフォワード先。
+        | 認可サーバの処理内で利用するパスであり、クライアントやリソースサーバには公開しない。
+    * - | 認可エラー発生時のフォワード先
+      - | \ ``error-page``\
+      - | \ ``/oauth/error``\
+      - | リソースオーナに認可エンドポイントにおけるエラーを通知するために利用するフォワード先。
+        | 認可サーバの処理内で利用するパスであり、クライアントやリソースサーバには公開しない。
+
+|
+
+これらのパスは認可サーバ側の設定を変更することにより、カスタマイズが可能である。
+具体的な設定方法を以降に示す。
+
+
+.. _CustomizePath:
+
+パスのカスタマイズ
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.. _CustomizeEndPoint:
+
+エンドポイントのカスタマイズ
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+前述のとおり、各エンドポイントは、<oauth2:authorization-server>タグの属性値を変更することにより、カスタマイズが可能である。
+
+エンドポイントを変更する際の実装例を以下に示す。
+
+* ``oauth2-auth.xml``
+
+.. code-block:: xml
+
+        <oauth2:authorization-server
+            client-details-service-ref="clientDetailsService"
+            user-approval-handler-ref="userApprovalHandler"
+            token-services-ref="tokenServices"
+            authorization-endpoint-url="/api/authorize"
+            token-endpoint-url="/api/token"
+            check-token-endpoint-url="/api/check_token"
+            check-token-enabled="true">  <!-- (1) -->
+            <!-- omitted -->
+        </oauth2:authorization-server>
+
+        <sec:http pattern="/api/*token*/**"
+            authentication-manager-ref="clientAuthenticationManager" realm="Realm">  <!-- (2) -->
+            <!-- omitted -->
+        </sec:http>
+
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``<oauth2:authorization-server>``\タグの変更したいエンドポイントに対する属性値（\ ``authorization-endpoint-url``\、
+          \ ``token-endpoint-url``\、\ ``check-token-endpoint-url``\）にURLを設定する。
+    * - | (2)
+      - | アクセストークン操作に関するエンドポイントのURLを含むように、アクセス制御の対象を変更する。
+
+
+.. Warning::
+
+    Spring Security OAuthのバージョン2.0.12以前を使用する場合、\ ``check-token-endpoint-url``\ は、\ ``authorization-endpoint-url``\ または\ ``token-endpoint-url``\ を指定していない場合は反映されないため注意が必要である。
+    これは以下のissueで取り上げられており、バージョン2.0.13で改修される予定である。
+    
+    https://github.com/spring-projects/spring-security-oauth/issues/897
+
+|
+
+変更したエンドポイントに合わせて、エンドポイントを参照する設定を変更する必要がある。
+認可サーバでは、\ :ref:`OAuthAuthorizationServerResourceOwnerAuthentication`\の\ ``spring-security.xml``\と
+\ :ref:`OAuthAuthorizationServerHowToCustomizeAuthorizeView`\の\ ``oauthConfirm.jsp``\のエンドポイント設定を参照されたい。
+
+また、クライアントの実装を行っている場合は、認可リクエストの設定として認可サーバのエンドポイントURLを設定しているため、
+\ :ref:`OAuth2RestTemplateSettings`\の\ ``oauth2-client.xml``\も参照されたい。
+
+.. _CustomizeForward:
+
+フォワード先のカスタマイズ
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+リソースオーナからの認可の取得時に、デフォルト設定では(コンテキストパス)/oauth/confirm_accessにフォワードされる。
+また、認可エンドポイントで認可エラーが発生した際には、デフォルト設定では(コンテキストパス)/oauth/errorにフォワードされる。
+これらのフォワード先は変更が可能である。
+
+フォワード先を変更する際の実装例を以下に示す。
+
+* ``oauth2-auth.xml``
+
+.. code-block:: xml
+
+        <oauth2:authorization-server
+            client-details-service-ref="clientDetailsService"
+            user-approval-handler-ref="userApprovalHandler"
+            token-services-ref="tokenServices"
+            error-page="forward:/api/error"
+            user-approval-page="forward:/api/confirm_access">  <!-- (1) -->
+            <!-- omitted -->
+        </oauth2:authorization-server>
+
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``<oauth2:authorization-server>``\タグの変更したいフォワード先に対する属性値（\ ``error-page``\または\ ``user-approval-page``\）にURLを設定する。
+          設定するURLは先頭に\ ``forward:``\を付ける必要がある。
+
+フォワード先を変更した際は対応するコントローラについても変更する必要があるため注意されたい。
+本実装例では以下を参照されたい。
+
+* \ :ref:`OAuthAuthorizationServerHowToCustomizeAuthorizeView`\の\ ``OAuth2ApprovalController.java``\
+* \ :ref:`OAuthAuthorizationServerHowToHandleError`\の\ ``OAuth2ErrorController.java``\
