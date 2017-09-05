@@ -70,6 +70,8 @@
 
         * Spring Security OAuthで発生する例外の一覧とハンドリング方法の追加(\ `guideline#2819 <https://github.com/terasolunaorg/guideline/issues/2819>`_\ )
 
+        * Spring Security OAuthの拡張ポイントについての説明を追加(\ `guideline#2820 <https://github.com/terasolunaorg/guideline/issues/2820>`_\ )
+
     * - 2017-03-17
       - \-
       - 5.3.0 RELEASE版公開

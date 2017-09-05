@@ -682,6 +682,7 @@ RFC 6749の\ `4.1.2.1. Error Response <https://tools.ietf.org/html/rfc6749#secti
 
 |
 
+.. _IssueOfAccessToken:
 
 アクセストークンの発行
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -5334,3 +5335,212 @@ Spring Security OAuthを使用せずにクライアントを開発する場合�
         | \ ``HttpClientErrorException``\ 
       - | \ :ref:`OAuthAuthorizationServerHowToCooperateWithHttp`\ において、チェックトークンエンドポイントへアクセス時にBasic認証に失敗した場合に発生する。
         | クライアントでエラーハンドリングを行う場合は、リソースサーバからクライアントに適切なエラーを返却するようリソースサーバでエラーハンドリングを行う必要がある。
+
+
+Spring Security OAuthの拡張について
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+RFC 6749の \ `8. Extensibility <https://tools.ietf.org/html/rfc6749#section-8>`_\ にはOAuth 2.0の拡張仕様が定められいる。
+OAuth 2.0による認可機能を提供するアプリケーションではこれに沿ってカスタマイズすることが可能である。
+
+Spring Security OAuthでは、前述のRFC 6749に規定された拡張ポイントに対してどのようにサポートしているかは明示的に公表されていないが、
+以下の拡張ポイントがサポートされていると考えられる。
+
+* \ `8.1 Defining Access Token Types <https://tools.ietf.org/html/rfc6749#section-8.1>`_\
+* \ `8.2 Defining New Endpoint Parameters <https://tools.ietf.org/html/rfc6749#section-8.2>`_\
+* \ `8.3 Defining New Authorization Grant Types <https://tools.ietf.org/html/rfc6749#section-8.3>`_\
+
+本節では、特に\ `8.2 Defining New Endpoint Parameters <https://tools.ietf.org/html/rfc6749#section-8.2>`_\
+に関連するアクセストークンリクエストとそのレスポンスの拡張ポイントについて主要なコンポーネントと処理の流れを解説する。
+
+
+アクセストークンリクエストとそのレスポンスの拡張
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+アクセストークンリクエストとそのレスポンスの拡張ポイントとして、
+任意のパラメータやヘッダをリクエストやレスポンスに付与することができる。
+
+ただし、認可リクエストには前述したような拡張ポイントが設けられていない。
+そのため、例えば認可リクエストに独自のパラメータを追加したい場合には、
+Spring Security OAuthのAPI自体を改修する必要があり、比較的大きな改修が必要となることに注意されたい。
+
+
+.. _OAuthAppendixClient:
+
+クライアント
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+クライアントでは、アクセストークンリクエストの拡張ポイントとして、
+\ ``RequestEnhancer``\ インタフェースが用意されている。
+以下に拡張ポイントに関連する主要なコンポーネント、およびその関連図を示す。
+
+
+.. tabularcolumns:: |p{0.35\linewidth}|p{0.65\linewidth}|
+.. list-table:: **クライアントの主要なコンポーネント**
+    :header-rows: 1
+    :widths: 35 65
+
+    * - クラス・インタフェース名
+      - 説明
+    * - | \ ``OAuth2RestTemplate``\
+      - | \ ``RestTemplate``\ を拡張しOAuth 2.0向けの機能を追加したクラス。
+        | グラントタイプに応じたアクセストークンの取得など、OAuth 2.0独自の機能を持つ。
+    * - | \ ``OAuth2ProtectedResourceDetails``\
+      - | リソースサーバが保持するリソースにアクセスするための詳細情報のインタフェース。
+        | グラントタイプに応じたパラメータを保持するために派生クラスが提供されており、認可コードグラントの場合は\ ``AuthorizationCodeResourceDetails``\ が実装クラスとなる。
+    * - | \ ``AccessTokenProvider``\
+      - | 認可サーバよりアクセストークンを取得するための機能を提供するインタフェース。
+        | グラントタイプに応じた派生クラスが提供されており、グラントタイプごとのプロバイダは必ず
+          \ ``AccessTokenProvider``\ を実装して\ ``OAuth2AccessTokenSupport``\ を継承している。
+        | 認可コードグラントの場合は\ ``AuthorizationCodeAccessTokenProvider``\ が実装クラスとなる。
+    * - | \ ``OAuth2AccessTokenSupport``\
+      - | 認可サーバよりアクセストークンを取得するための機能を提供する基底クラス。
+        | グラントタイプ共通の処理として、認可サーバに対してアクセストークンリクエストを送信する機能を提供している。
+        | アクセストークンリクエストの生成には、後述する\ ``ClientAuthenticationHandler``\ と\ ``RequestEnhancer``\ を使用している。
+    * - | \ ``AuthorizationCodeAccessTokenProvider``\
+      - | 認可コードグラントにてアクセストークンを取得するための機能を提供するクラス。
+        | 認可コードグラント独自の処理として、認可リクエストを作成する機能を提供している。
+    * - | \ ``ClientAuthenticationHandler``\
+      - | \ ``OAuth2ProtectedResourceDetails``\ をもとにヘッダ、またはフォームにクライアント認証情報を設定するための
+          機能を提供するインタフェース。\ ``DefaultClientAuthenticationHandler``\ がデフォルトの実装クラスとなる。
+    * - | \ ``RequestEnhancer``\
+      - | アクセストークンリクエストおよび\ ``OAuth2ProtectedResourceDetails``\ をもとにヘッダ、またはフォームに
+          パラメータを設定するための機能を提供するインタフェース。
+          \ ``DefaultRequestEnhancer``\ がデフォルトの実装クラスとなる。
+        | **アクセストークンリクエストにおける拡張ポイントの一つ。**
+        |
+        | なお、リクエストパラメータに独自の項目を追加したい場合は、デフォルトで使用される\ ``DefaultRequestEnhancer``\の
+          Bean定義を変更するだけで良く、独自に\ ``RequestEnhancer``\の実装クラスを作成する必要はない。
+        |
+        | 具体的には、以下のようにBean定義すれば良い。
+        | 
+        | (1) \ ``DefaultRequestEnhancer``\ 
+        |     \ ``parameterIncludes``\ 属性に追加するパラメータのキー値を設定する
+        | (2) \ ``AuthorizationCodeAccessTokenProvider``\
+        |     \ ``tokenRequestEnhancer``\ 属性に(1)の\ ``DefaultRequestEnhancer``\を設定する
+        | (3) \ ``OAuth2RestTemplate``\
+        |     \ ``access-token-provider``\ 属性に(2)の\ ``AuthorizationCodeAccessTokenProvider``\ を設定する
+
+|
+
+例として、認可コードグラントにおける、クライアントからリソースにアクセスする時のフローを以下に示す。
+
+.. figure:: ./images/OAuth_ClientAccessTokenRequest.png
+    :width: 100%
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table:: **クライアントの動き（アクセストークンリクエスト）**
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | リソースサーバが保持しているリソースにアクセスする際、\ ``OAuth2RestTemplate``\ の呼び出しが行われることでクライアント側の処理が開始される。
+        | 認可コード発行までのクライアント側のフローについては、\ :ref:`Client`\ を参照されたい。
+    * - | (2)
+      - | 認可コード発行後、認可サーバのリダイレクトにより再度\ ``OAuth2RestTemplate``\ の呼び出しが行われる。
+          このとき、認可コードはセッション(\ ``OAuth2ClientContext``\ )に保持される。
+        | \ ``OAuth2RestTemplate``\ では、\ ``OAuth2ProtectedResourceDetails``\ に定義しているグラントタイプに応じて\ ``AccessTokenProvider``\ の呼び出しを行う。
+        | \ ``AuthorizationCodeAccessTokenProvider``\ が\ ``AccessTokenProvider``\ の実装クラスとして呼び出される。
+    * - | (3)
+      - | \ ``AuthorizationCodeAccessTokenProvider``\ では、\ ``OAuth2AccessTokenSupport``\ が保持する\ ``ClientAuthenticationHandler``\ からはクライアント認証情報を、
+          \ ``RequestEnhancer``\ からはリクエストパラメータをヘッダ、またはフォームに設定し、アクセストークンリクエストを作成する。
+    * - | (4)
+      - | \ ``OAuth2AccessTokenSupport``\は(3)にて作成したリクエストを使用し、認可サーバに対してアクセストークンリクエストを送信する。
+    * - | (5)
+      - | 認可サーバでは、クライアントを認証し認可グラントの正当性を確認する。
+        | 認可グラントが正当な場合、アクセストークンを発行する。
+        | アクセストークン発行のフローについては、\ :ref:`IssueOfAccessToken`\ を参照されたい。
+    * - | (6)
+      - | \ ``AccessTokenProvider``\は取得したアクセストークンを\ ``OAuth2RestTemplate``\ に返却する。
+        | \ ``OAuth2RestTemplate``\では、セッション(\ ``OAuth2ClientContext``\ )にアクセストークンを保持し、それを用いてリソースサーバに対してリクエストを送信する。
+
+|
+
+.. _OAuthAppendixAuthorizationServer:
+
+認可サーバ
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+認可サーバでは、アクセストークンレスポンスの拡張ポイントとして、
+\ ``TokenEnhancer``\ インタフェースが用意されている。
+以下に拡張ポイントに関連する主要なコンポーネント、およびその関連図を示す
+
+
+.. tabularcolumns:: |p{0.35\linewidth}|p{0.65\linewidth}|
+.. list-table:: **認可サーバの主要なコンポーネント**
+    :header-rows: 1
+    :widths: 35 65
+
+    * - クラス・インタフェース名
+      - 説明
+    * - | \ ``AbstractEndpoint``\
+      - | 認可サーバにおいて、クライアントからのリクエストを受けるエンドポイントの共通的な機能を提供する基底クラス。
+          \ ``TokenEndpoint``\が実装クラスとなる。
+    * - | \ ``TokenEndpoint``\
+      - | クライアントからのリクエストに対し、アクセストークンを発行するためのエンドポイントの機能を提供するクラス。
+        | クライアントや、リクエストパラメータに含まれるパラメータを検証する機能を持つ。
+    * - | \ ``ClientDetailsService``\
+      - | OAuth 2.0機能を利用するクライアントを検証するための機能を提供するインタフェース。
+        | クライアント情報を管理する媒体ごとに派生クラスが提供されており、\ ``JdbcClientDetailsService``\ 、\ ``InMemoryClientDetailsService``\ が実装クラスとなる。
+    * - | \ ``TokenGranter``\
+      - | アクセストークンを発行するための機能を提供するインタフェース。
+        | グラントタイプに応じた派生クラスが提供されており、グラントタイプごとのプロバイダは必ず\ ``TokenGranter``\ を実装して\ ``AbstractTokenGranter``\ を継承している。
+        | 認可コードグラントの場合は\ ``AuthorizationCodeTokenGranter``\ が実装クラスとなる。
+    * - | \ ``AbstractTokenGranter``\
+      - | アクセストークンを発行するための機能を提供する基底クラス。
+        | リクエストパラメータからクライアント情報を取得し、グラントタイプの検証と固有処理の呼び出しを行う機能を持つ。
+    * - | \ ``AuthorizationCodeTokenGranter``\
+      - | 認可コードグラントにてアクセストークンを発行するための機能を提供するクラス。
+        | 認可コードグラント独自の処理として、アクセストークンリクエストに含まれる認可コードやリダイレクトURIを検証する機能を提供している。
+    * - | \ ``AuthorizationCodeServices``\
+      - | 認可コードグラントにて認可コードの発行、および管理をするための機能を提供するインタフェース。
+        | 認可コードを管理する媒体ごとに派生クラスが提供されており、\ ``JdbcAuthorizationServerTokenServices``\ 、\ ``InMemoryAuthorizationServerTokenServices``\ が実装クラスとなる。
+    * - | \ ``AuthorizationServerTokenServices``\
+      - | 認可サーバとして必要となる、アクセストークンやリフレッシュトークンを発行するための機能を提供するインタフェース。\ ``DefaultTokenServices``\ がデフォルトの実装クラスとなる。
+    * - | \ ``TokenEnhancer``\
+      - | \ ``AuthorizationServerTokenServices``\によって生成されたトークンに追加情報等を付与するための機能を提供するインタフェース。
+        | 本インタフェースを拡張することでアクセストークンとして管理する情報、およびクライアントに返却する情報に独自パラメータを付与することが出来る。
+        | **アクセストークンレスポンスにおける拡張ポイントの一つ。**
+    * - | \ ``TokenStore``\
+      - | アクセストークンを管理するための機能を提供するインタフェース。
+        | アクセストークンを管理する媒体ごとに派生クラスが提供されており、\ ``JdbcTokenStore``\ 、\ ``InMemoryTokenStore``\ などが実装クラスとなる。
+
+|
+
+例として、認可コードグラントにおける、認可サーバのトークンエンドポイントアクセス時のフローを以下に示す。
+
+.. figure:: ./images/OAuth_AutohrizationServerAccessTokenResponse.png
+    :width: 100%
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table:: **認可サーバの動き（アクセストークンレスポンス）**
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``TokenEndpoint``\ の呼び出しが行われることで認可サーバ側の処理が開始される。
+    * - | (2)
+      - | \ ``TokenEndpoint``\ では、\ ``AbstractEndpoint``\ が保持する\ ``ClientDetailsService``\ の呼び出しを行いアクセストークンリクエストに含まれる
+          クライアント情報やパラメータの検証後、\ ``TokenGranter``\ の呼び出しを行う。
+        | \ ``AuthorizationCodeTokenGranter``\ が\ ``TokenGranter``\ の実装クラスとなる。
+    * - | (3)
+      - | \ ``TokenGranter``\ では、まず基底クラスである\ ``AbstractTokenGranter``\ の処理が行われる。
+        | \ ``AbstractTokenGranter``\ では、\ ``ClientDetailsService``\ の呼び出しを行うことでリクエストパラメータに指定されたクライアント情報を取得し、
+          グラントタイプの検証後、グラントタイプ固有の処理（\ ``AuthorizationCodeTokenGranter``\ ）の呼び出しを行う。
+    * - | (4)
+      - | \ ``AuthorizationCodeTokenGranter``\ では、リクエストパラメータから取得した認可コードを指定して\ ``AuthorizationCodeServices``\ の呼び出しを行い、発行済み認可コードの削除を行うとともに認可リクエスト時の情報を取得する。
+    * - | (5)
+      - | \ ``AuthorizationCodeServices``\ では、認可コードグラントのアクセストークンリクエストパラメータとして指定されたクライアントID、リダイレクトURIと(4)にて取得した認可リクエストの内容を比較し、アクセストークンリクエストの妥当性の検証を行う。
+        | 検証結果に問題がない場合、リクエストパラメータと認可リクエスト時に取得したリソースオーナの認証情報（ユーザ名など）より、認証情報を作成し呼び出し元に返却する。
+    * - | (6)
+      - | \ ``AbstractTokenGranter``\ では、\ ``AuthorizationServerTokenServices``\ のアクセストークン取得処理の呼び出しを行う。
+        | \ ``DefaultTokenServices``\ が\ ``AuthorizationServerTokenServices``\ の実装クラスとなる。
+    * - | (7)
+      - | \ ``DefaultTokenServices``\ ではアクセストークンを作成する。
+        | \ ``TokenEnhancer``\ が指定されている場合、アクセストークンを拡張し、追加パラメータなどを付与することが出来る。
+    * - | (8)
+      - | \ ``TokenStore``\の呼び出しを行い、(5)にて作成した認証情報とともに(7)で作成したアクセストークンを登録し、アクセストークンを呼び出し元の\ ``TokenEndpoint``\ に返却する。
+        | \ ``TokenEndpoint``\ では(7)で作成したアクセストークンをもとにレスポンスを作成し、リクエストの応答を行う。
