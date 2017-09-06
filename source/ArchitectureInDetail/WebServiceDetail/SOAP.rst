@@ -75,8 +75,9 @@ JAX-WSとは
 
 Spring FrameworkのJAX-WS連携機能について
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| Spring FrameworkはJAX-WSの連携機能をサポートしており、その機能を使用することでSOAPサーバ、クライアントともに簡単に実装することができる。
-| 以下はその機能を用いた、推奨アクセスフローの概要である。ここではSOAPのクライアント(図左)であるWebアプリケーションがSOAPサーバ(図右)にアクセスすることを前提としている。
+| Spring FrameworkはJAX-WSの連携機能をサポートしており、その機能を使用することでSOAP Web Serviceのアプリケーションを簡単に実装することができる。
+| 以下はその機能をクライアントに用いた、推奨アクセスフローの概要である。（SOAPサーバについてはJava EEサーバのJAX-WS実装を使用する。）
+| ここではSOAPのクライアント(図左)であるWebアプリケーションがSOAPサーバ(図右)にアクセスすることを前提としている。
 
 .. figure:: images_SOAP/SOAPProcessFlow.png
     :alt: Server and Client Projects for SOAP
@@ -108,6 +109,10 @@ Spring FrameworkのJAX-WS連携機能について
 
             厳密には、SOAPサーバとクライアントはXMLを使用して通信を行っている。
             送信時、および受信時にはJAXBを使用して、Domain ObjectとXMLの相互変換が行われているが、SOAP Web Service作成者はXMLをあまり意識せず、開発を行うことができるようになっている。
+        
+        .. Note::
+
+            ここではSOAPサーバにJava EEサーバのJAX-WS実装を使用するため、SpringMVCの機能（DispatcherServletを利用する機能など）については利用できない点に留意されたい。
         
     * - | (5)
       - | [サーバ] WebServiceインターフェースが呼び出されると実体としてWebService実装クラスが呼び出される。
@@ -155,6 +160,11 @@ JAX-WSを利用したWebサービスの開発について
 
     SOAPサーバ、クライアントどちらにおいても、通常のWebアプリケーション同様に、ブランクプロジェクト内のwebプロジェクトから作成したWARファイルをAPサーバにデプロイすることで、SOAP Web Serviceを実現することができる。
 
+.. Note::
+
+    本ガイドラインではSOAPサーバのWebサービスはAPサーバのJAX-WS実装を利用しているため、利用するAPサーバによってWebサービスの実装、動作に違いが出る可能性があるので注意すること。
+    
+    意図しない動作となった場合には、利用するAPサーバに応じて適宜カスタマイズされたい。
 
 |
 
@@ -630,6 +640,12 @@ webプロジェクト内にWebServiceインターフェースの実装クラス�
       - | \ ``@BindingType``\ を付けることで、バインディングの方式を設定する。
         | \ ``SOAPBinding.SOAP12HTTP_BINDING``\ を定義するとSOAP1.2でのバインディングとなる。
         | 何もつけない場合は、SOAP1.1でのバインディングとなる。
+
+        .. note::
+          使用するAPサーバのJAX-WS実装により、バインディング方式で挙動が異なる場合があるため注意すること。
+          
+          たとえば、WebSphere Application Serverの特定のバージョンではSOAP1.2でのバインディングの場合にWSDLが自動生成されない。詳細については\ `IBM Knowledge Center <https://www.ibm.com/support/knowledgecenter/SSRTLW_9.6.1/com.ibm.webservice.doc/topics/jaxws/cwsandoc001.html>`_\を参照されたい。
+
     * - | (3)
       - | 先ほど作成した\ ``TodoWebService``\ インターフェースを実装する。
         | \ ``org.springframework.web.context.support.SpringBeanAutowiringSupport``\ を継承することで、SpringのBeanをDIできるようにする。
