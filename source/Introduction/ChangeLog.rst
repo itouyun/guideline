@@ -66,6 +66,13 @@
 
         * パスワードを\ ``StandardPasswordEncoder`` \によるハッシュ化によって管理する場合の注意事項を追加(\ `guideline#2092 <https://github.com/terasolunaorg/guideline/issues/2092>`_\ )
 
+    * - 
+      - :doc:`../Security/XSS`
+      - 記載内容の修正、追加
+
+        * JavaScript Escapingのサンプルソースを修正(\ `guideline#2531 <https://github.com/terasolunaorg/guideline/issues/2531>`_\ )
+        * \ ``document.write()`` \を使用する際の注意事項を追加(\ `guideline#2531 <https://github.com/terasolunaorg/guideline/issues/2531>`_\ )
+
     * -
       - :doc:`../Security/OAuth`
       - 構成見直し
