@@ -28,9 +28,9 @@
 
     * -
       - :doc:`../ImplementationAtEachLayer/DomainLayer`
-      - MyBatis3.4対応に伴う修正
+      - 記載内容の追加
 
-        * \ ``@Transactional`` \アノテーションの\ ``timeout`` \属性に関する記載を変更(\ `guideline#1776 <https://github.com/terasolunaorg/guideline/issues/1776>`_\ )
+        * \ ``@Transactional`` \アノテーションの\ ``timeout`` \属性に関する記載を追加(\ `guideline#1776 <https://github.com/terasolunaorg/guideline/issues/1776>`_\ ) 
 
     * -
       - :doc:`../ArchitectureInDetail/WebApplicationDetail/Validation`
