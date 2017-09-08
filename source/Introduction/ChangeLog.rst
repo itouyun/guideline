@@ -85,11 +85,11 @@
 
         記載内容の改善
 
-        * 誤記の修正(\ `guideline#2891 <https://github.com/terasolunaorg/guideline/issues/2891>`_\ )
-
         * サンプルコードの修正(\ `guideline#2891 <https://github.com/terasolunaorg/guideline/issues/2891>`_\ )
 
         * フロー図およびその説明の改善(\ `guideline#2891 <https://github.com/terasolunaorg/guideline/issues/2891>`_\ )
+
+        * その他修正内容の詳細は、\ `5.4.0のIssue一覧(clerical error) <https://github.com/terasolunaorg/guideline/issues?utf8=%E2%9C%93&q=%20label%3A5.4.0%20is%3Aclosed%20label%3A%22clerical%20error%22%20>`_\ を参照されたい。
 
     * - 2017-03-17
       - \-
