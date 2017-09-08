@@ -262,6 +262,8 @@ Spring Securityが用意しているWebアプリケーション向けExpression�
 
 |
 
+.. _AuthorizationToWebResources:
+
 Webリソースへの認可
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -577,6 +579,8 @@ Spring Security 4.1以降では、アクセスポリシーを適用するリソ�
 .. [#fPathVariableDescription] パス変数の説明は :doc:`../ImplementationAtEachLayer/ApplicationLayer` の\ :ref:`controller_method_argument-pathvariable-label`\ を参照されたい。
 
 |
+
+.. _AuthorizationToMethod:
 
 メソッドへの認可
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
