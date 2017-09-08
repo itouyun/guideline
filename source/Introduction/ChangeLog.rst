@@ -69,6 +69,13 @@
 
         * \ `CVE-2016-9879 <https://pivotal.io/security/cve-2016-9879>`_\ (認可のすり抜けが可能となる脆弱性)に関する注意喚起と対策を追加(\ `guideline#2439 <https://github.com/terasolunaorg/guideline/issues/2439>`_\ )
 
+    * - 
+      - :doc:`../Security/XSS`
+      - 記載内容の修正、追加
+
+        * JavaScript Escapingのサンプルソースを修正(\ `guideline#2531 <https://github.com/terasolunaorg/guideline/issues/2531>`_\ )
+        * \ ``document.write()`` \を使用する際の注意事項を追加(\ `guideline#2531 <https://github.com/terasolunaorg/guideline/issues/2531>`_\ )
+
     * - 2016-08-31
       - :doc:`../ArchitectureInDetail/FileUpload`
       - 記載内容の追加
