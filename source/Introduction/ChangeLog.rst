@@ -78,6 +78,18 @@
 
         * Spring Security OAuthの拡張ポイントについての説明を追加(\ `guideline#2820 <https://github.com/terasolunaorg/guideline/issues/2820>`_\ )
 
+        * リソースサーバに対するBasic認証設定方法の追加(\ `guideline#2891 <https://github.com/terasolunaorg/guideline/issues/2891>`_\ )
+
+        * インプリシットにおける後処理（アクセストークンクリア）の追加(\ `guideline#2891 <https://github.com/terasolunaorg/guideline/issues/2891>`_\ )
+
+        記載内容の改善
+
+        * 誤記の修正(\ `guideline#2891 <https://github.com/terasolunaorg/guideline/issues/2891>`_\ )
+
+        * サンプルコードの修正(\ `guideline#2891 <https://github.com/terasolunaorg/guideline/issues/2891>`_\ )
+
+        * フロー図およびその説明の改善(\ `guideline#2891 <https://github.com/terasolunaorg/guideline/issues/2891>`_\ )
+
     * - 2017-03-17
       - \-
       - 5.3.0 RELEASE版公開
